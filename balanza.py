@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import wx
+from wx import xrc
+
 
 class SimpleMenu(wx.Frame):
     def __init__(self, parent, id, title):
