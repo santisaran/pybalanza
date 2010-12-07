@@ -72,7 +72,7 @@ class MyFrame(wx.Frame):
         # begin wxGlade: MyFrame.__set_properties
         self.SetTitle("frame_1")
         _icon = wx.EmptyIcon()
-        _icon.CopyFromBitmap(wx.Bitmap("/home/saran/Documentos/Balanza/pybalanza/images/balance.png", wx.BITMAP_TYPE_ANY))
+        _icon.CopyFromBitmap(wx.Bitmap(opj("images/balance.png"), wx.BITMAP_TYPE_ANY))
         self.SetIcon(_icon)
         self.combo_box_1.SetSelection(0)
         # end wxGlade
