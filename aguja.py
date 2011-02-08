@@ -8,6 +8,17 @@ import socket
 import dbus
 
 from math import hypot, sin, cos, pi
+       
+EVT_NEW_DATA_ID = wx.NewId()
+
+def EVT_RESULT(win, func):
+    win.Connect(-1, -1, EVT_NEW_DATA_ID, func)
+        
+class AcquireEvent(wx.PyEvent):
+    def __init__(self, data):
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_NEW_DATA_ID)
+        self.data = data
 
 class Reloj(wx.Frame):
     def __init__(self, parent, id, title):
@@ -18,7 +29,8 @@ class Reloj(wx.Frame):
         self.Show(True)
         self.angle = -pi-60*pi/180
         self.subangle = (20*pi/180)
-        
+        self.alive=True
+        EVT_RESULT(self, self.OnAcquireData)
         
     def OnResult(self,event):
         print "hubo un evento"
@@ -49,6 +61,9 @@ class Reloj(wx.Frame):
             x2 = (radius-10)*cos(marcas*pi/180)
             y2 = (radius-10)*sin(marcas*pi/180)
             dc.DrawLine(x1,y1,x2,y2)
+            
+    def OnAquireData(self,evt):
+        self.angle = evt.data
         
 
 # Thread class that executes processing
@@ -65,29 +80,38 @@ class WorkerThread(threading.Thread):
         self.start()
 
     def run(self):
-        s = socket.socket()
-        s.bind(("localhost", 9999))
-        s.listen(1)
-        sc, addr = s.accept()
-        while True:
-            recibido = sc.recv(1024)
-            if recibido == "quit":
-                break
-            print recibido         #[:15]+"\r",
-            try: 
-                peso=int(recibido) #[5:10])
-            except ValueError:
-                print recibido+" no es un valor numérico"
-
-            rel.angle=peso*300*pi/720000-pi-60*pi/180
-            rel.OnPaint(wx.EVT_PAINT)
-        print "Recibido:", recibido
-        sc.send(recibido)
-        print "adios"
+        import usb.core
+        import usb.util
+        dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
+        interface = dev.get_interface_altsetting()
+        if dev.is_kernel_driver_active(interface.bInterfaceNumber) is True:
+            dev.detach_kernel_driver(interface.bInterfaceNumber)
+        dev.set_configuration()
+        dev.reset()
+        pesadas = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        cuenta=0.0
+        valor_anterior=0
+        while self._notify_window.alive:
+            cadena = dev.read(0x81,32)
+            if len(cadena)>30:
+                peso = [chr(a) for a in cadena]
+                gramos = int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3])
+                pesadas.pop(0)
+                pesadas.append(gramos)
+                cuenta+=1
+                if cuenta == 10:
+                    cuenta = 0
+                    valor=0
+                    for a in pesadas:
+                        valor+=a
+                    valor = valor / len(pesadas)
+                    if valor != valor_anterior:
+                        print valor
+                        valor_anterior = valor
+                        rel.angle=valor*300*pi/720000-pi-60*pi/180
+                        #wx.PostEvent(self._notify_window,wx.EVT_PAINT)   
         rel.angle=0
-        sc.close()
-        s.close()
-
+        
         #"""Run Worker Thread."""
         # This is the code executing in the new thread
         # Here's where the result would be returned (this is an
