@@ -185,6 +185,9 @@ class Panel1(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnVerGrafico, self.btn_ver_graf) #
         
         EVT_RESULT(self, self.OnAcquireData)
+        self.Bind(wx.EVT_MENU_CLOSE, self.OnClosePanel)
+        self.Bind(wx.EVT_CLOSE, self.OnClosePanel)
+        
         #self.btn_save_tabla.Enable( False )
         #self.btn_save_tabla.Hide()
         #self.btn_ver_tabla.Enable(False)
@@ -224,6 +227,14 @@ class Panel1(wx.Panel):
     #------------------------------------------------------------------#
     #----------- Funciones asociadas a eventos ------------------------#
     #------------------------------------------------------------------#
+    
+    def OnClosePanel(self,evt):
+		"""cerrando ventana"""
+		time.sleep(2)
+		print "cerrando"
+		self.alive=False
+		self.thread.join()
+		evt.Skip()
     
     def OnBalanza(self,evt):
         """Acción al presionar boton 1/Balanza"""
