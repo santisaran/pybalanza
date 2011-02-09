@@ -6,8 +6,35 @@ import cStringIO
 import base64
 import threading
 import random
+import sys
+import os
+import time
 
-tile_file = "images/base.png"
+import grafico
+
+sep = os.sep
+if sys.platform=="linux2":
+    a=0
+else:
+    a=5
+tile_file = "images"+sep+"base.png"
+
+def posbtns(x,y):
+    posh = (430+a,499+a,568+a,637+a)
+    posv = (60+a,128+a,196+a,266+a)
+    return (posh[x],posv[y])
+
+EVT_NEW_DATA_ID = wx.NewId()
+
+def EVT_RESULT(win, func):
+    win.Connect(-1, -1, EVT_NEW_DATA_ID, func)
+
+
+class AcquireEvent(wx.PyEvent):
+    def __init__(self, data):
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_NEW_DATA_ID)
+        self.data = data
 
 class puntero():
     def __init__(self,vector):
@@ -37,10 +64,10 @@ class Panel1(wx.Panel):
         # now put a button on the panel, on top of wallpaper
         posh = (430,499,568,637)
         posv = (60,128,196,266)
-        self.botones = ("images/btn1_peso.png","images/btn2_cont.png","images/btn3_cal.png","images/btn_tara.png",\
-                        "images/btn4_vol.png", "images/btn5_den.png", "images/btn6.png",    "images/btn_uni.png",\
-                        "images/btn7.png",     "images/btn8.png",     "images/btn9.png",    "images/btn_acep.png",\
-                        "images/btn_up.png", "images/btn0.png",   "images/btn_down.png","images/btn._punto.png")
+        self.botones = ("images"+sep+"btn1_peso.png","images"+sep+"btn2_cont.png","images"+sep+"btn3_cal.png","images"+sep+"btn_tara.png",\
+                        "images"+sep+"btn4_vol.png", "images"+sep+"btn5_den.png", "images"+sep+"btn6.png",    "images"+sep+"btn_uni.png",\
+                        "images"+sep+"btn7.png",     "images"+sep+"btn8.png",     "images"+sep+"btn9.png",    "images"+sep+"btn_acep.png",\
+                        "images"+sep+"btn_up.png", "images"+sep+"btn0.png",   "images"+sep+"btn_down.png","images"+sep+"btn._punto.png")
         self.unidades_peso = puntero([u"gr","kg","lb"])
         self.unidades_vol = puntero([u"cm³",u"dm³",u"in³"])
         self.unidades_den = puntero(["gr","kg","lb"])
@@ -66,65 +93,65 @@ class Panel1(wx.Panel):
         #-------------------    BOTONES     ---------------------------#
         #--------------------------------------------------------------#
         
-        self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_ANY), pos=(430,60), style=0|wx.NO_BORDER )
+        self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_ANY), pos=posbtns(0,0), style=0|wx.NO_BORDER )
         self.btn1.SetBitmapSelected( wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_ANY ))
         
-        self.btn2 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY), pos=(499,60), style=0|wx.NO_BORDER )
+        self.btn2 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY), pos=posbtns(1,0), style=0|wx.NO_BORDER )
         self.btn2.SetBitmapSelected( wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY ))
         
-        self.btn3 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[2], wx.BITMAP_TYPE_ANY), pos=(568,60), style=0|wx.NO_BORDER )
+        self.btn3 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[2], wx.BITMAP_TYPE_ANY), pos=posbtns(2,0), style=0|wx.NO_BORDER )
         self.btn3.SetBitmapSelected( wx.Bitmap( self.botones[2], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_tara = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[3], wx.BITMAP_TYPE_ANY), pos=(637,60), style=0|wx.NO_BORDER )
+        self.btn_tara = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[3], wx.BITMAP_TYPE_ANY), pos=posbtns(3,0), style=0|wx.NO_BORDER )
         self.btn_tara.SetBitmapSelected( wx.Bitmap( self.botones[3], wx.BITMAP_TYPE_ANY ))
         
-        self.btn4 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[4], wx.BITMAP_TYPE_ANY), pos=(430,128), style=0|wx.NO_BORDER )
+        self.btn4 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[4], wx.BITMAP_TYPE_ANY), pos=posbtns(0,1), style=0|wx.NO_BORDER )
         self.btn4.SetBitmapSelected( wx.Bitmap( self.botones[4], wx.BITMAP_TYPE_ANY ))
         
-        self.btn5 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[5], wx.BITMAP_TYPE_ANY), pos=(499,128), style=0|wx.NO_BORDER )
+        self.btn5 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[5], wx.BITMAP_TYPE_ANY), pos=posbtns(1,1), style=0|wx.NO_BORDER )
         self.btn5.SetBitmapSelected( wx.Bitmap( self.botones[5], wx.BITMAP_TYPE_ANY ))
         
-        self.btn6 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[6], wx.BITMAP_TYPE_ANY), pos=(568,128), style=0|wx.NO_BORDER )
+        self.btn6 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[6], wx.BITMAP_TYPE_ANY), pos=posbtns(2,1), style=0|wx.NO_BORDER )
         self.btn6.SetBitmapSelected( wx.Bitmap( self.botones[6], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_uni = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[7], wx.BITMAP_TYPE_ANY), pos=(637,128), style=0|wx.NO_BORDER )
+        self.btn_uni = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[7], wx.BITMAP_TYPE_ANY), pos=posbtns(3,1), style=0|wx.NO_BORDER )
         self.btn_uni.SetBitmapSelected( wx.Bitmap( self.botones[7], wx.BITMAP_TYPE_ANY ))
         
-        self.btn7 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[8], wx.BITMAP_TYPE_ANY), pos=(431,196), style=0|wx.NO_BORDER )
+        self.btn7 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[8], wx.BITMAP_TYPE_ANY), pos=posbtns(0,2), style=0|wx.NO_BORDER )
         #self.btn7.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
-        self.btn8 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[9], wx.BITMAP_TYPE_ANY), pos=(499,196), style=0|wx.NO_BORDER )
+        self.btn8 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[9], wx.BITMAP_TYPE_ANY), pos=posbtns(1,2), style=0|wx.NO_BORDER )
         self.btn8.SetBitmapSelected( wx.Bitmap( self.botones[9], wx.BITMAP_TYPE_ANY ))
         
-        self.btn9 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[10], wx.BITMAP_TYPE_ANY), pos=(568,196), style=0|wx.NO_BORDER )
+        self.btn9 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[10], wx.BITMAP_TYPE_ANY), pos=posbtns(2,2), style=0|wx.NO_BORDER )
         self.btn9.SetBitmapSelected( wx.Bitmap( self.botones[10], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_acep = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[11], wx.BITMAP_TYPE_ANY), pos=(637,196), style=0|wx.NO_BORDER )
+        self.btn_acep = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[11], wx.BITMAP_TYPE_ANY), pos=posbtns(3,2), style=0|wx.NO_BORDER )
         self.btn_acep.SetBitmapSelected( wx.Bitmap( self.botones[11], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_down = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[12], wx.BITMAP_TYPE_ANY), pos=(430,266), style=0|wx.NO_BORDER )
+        self.btn_down = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[12], wx.BITMAP_TYPE_ANY), pos=posbtns(0,3), style=0|wx.NO_BORDER )
         self.btn_down.SetBitmapSelected( wx.Bitmap( self.botones[12], wx.BITMAP_TYPE_ANY ))
         
-        self.btn0 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[13], wx.BITMAP_TYPE_ANY), pos=(499,266), style=0|wx.NO_BORDER )
+        self.btn0 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[13], wx.BITMAP_TYPE_ANY), pos=posbtns(1,3), style=0|wx.NO_BORDER )
         self.btn0.SetBitmapSelected( wx.Bitmap( self.botones[13], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_up = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[14], wx.BITMAP_TYPE_ANY), pos=(568,266), style=0|wx.NO_BORDER )
+        self.btn_up = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[14], wx.BITMAP_TYPE_ANY), pos=posbtns(2,3), style=0|wx.NO_BORDER )
         self.btn_up.SetBitmapSelected( wx.Bitmap( self.botones[14], wx.BITMAP_TYPE_ANY ))
         
-        self.btn_fin = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[15], wx.BITMAP_TYPE_ANY), pos=(637,266), style=0|wx.NO_BORDER )
+        self.btn_fin = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[15], wx.BITMAP_TYPE_ANY), pos=posbtns(3,3), style=0|wx.NO_BORDER )
         self.btn_fin.SetBitmapSelected( wx.Bitmap( self.botones[15], wx.BITMAP_TYPE_ANY ))
         
         #--------------------------------------------------------------#
         #-------------------    Botones alternativos ------------------#
         #--------------------------------------------------------------#
         
-        self.btn_save_tabla = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images/btn_gt.png", wx.BITMAP_TYPE_ANY), pos=(70,370), style=0|wx.NO_BORDER )
+        self.btn_save_tabla = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images"+sep+"btn_gt.png", wx.BITMAP_TYPE_ANY), pos=(70,370), style=0|wx.NO_BORDER )
         #self.btn_save_tabla.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
-        self.btn_ver_tabla = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images/btn_vt.png", wx.BITMAP_TYPE_ANY), pos=(220,370), style=0|wx.NO_BORDER )
+        self.btn_ver_tabla = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images"+sep+"btn_vt.png", wx.BITMAP_TYPE_ANY), pos=(220,370), style=0|wx.NO_BORDER )
         #self.btn_ver_tabla.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
-        self.btn_ver_graf = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images/btn_vg.png", wx.BITMAP_TYPE_ANY), pos=(70,370), style=0|wx.NO_BORDER )
+        self.btn_ver_graf = wx.BitmapButton(self, wx.ID_ANY, wx.Bitmap( u"images"+sep+"btn_vg.png", wx.BITMAP_TYPE_ANY), pos=(70,370), style=0|wx.NO_BORDER )
         #self.btn_ver_graf.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
         
@@ -157,6 +184,7 @@ class Panel1(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnVerTabla, self.btn_ver_tabla)  #
         self.Bind(wx.EVT_BUTTON, self.OnVerGrafico, self.btn_ver_graf) #
         
+        EVT_RESULT(self, self.OnAcquireData)
         #self.btn_save_tabla.Enable( False )
         #self.btn_save_tabla.Hide()
         #self.btn_ver_tabla.Enable(False)
@@ -164,16 +192,25 @@ class Panel1(wx.Panel):
         self.btn_ver_graf.Enable(False)
         self.btn_ver_graf.Hide()
         
-        self.Bind(wx.EVT_TIMER, self.OnTimeout)
-        self.timer = wx.Timer(self)
-        self.timer.Start(1500)
+        #self.Bind(wx.EVT_TIMER, self.OnTimeout)
+        #self.timer = wx.Timer(self)
+        #self.timer.Start(1500)
+    
+        self.alive = True
+        self.thread = ThreadLector(0, self)
+        self.thread.start()
     
     #valor aleatorio para probar soft sinbalanza.
-    def OnTimeout(self, evt):
-        if self.estado=="balanza":
-            self.pantalla.SetValue("Peso: " + str(random.randint(0, 4000)) + self.unidades_peso.vector[0])
-        elif self.estado=="contador":
-            self.pantalla.SetValue("Contador: " + str(random.randint(0, 4000)) + " pcs")
+    
+    def OnAcquireData(self,evt):
+        """Evento de recepción de datos"""
+        self.pantalla.SetValue(str(evt.data))
+        
+
+    #def OnTimeout(self, evt):
+    #    wx.PostEvent(self, AcquireEvent(str(random.randint(0,4096))))
+        #self.pantalla.SetValue("Peso: " + str(random.randint(0, 4096)) + self.unidades_peso.vector[0])
+        #self.pantalla.SetValue("Contador: " + str(random.randint(0, 4000)) + " pcs")
         
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
         """ Muestra/oculta los botones de la funcion pesar """
@@ -226,7 +263,6 @@ class Panel1(wx.Panel):
         
     def OnUnidad(self,evt):
         """Acción al presionar unidad"""
-        print "cambiode unidad"
         if self.estado=="balanza":
             self.unidades_peso.up()
         evt.Skip()
@@ -263,6 +299,7 @@ class Panel1(wx.Panel):
     
     def OnVerGrafico(self,evt):
         """Acción al presionar boton Ver Gráfico"""
+        grafico.LineChartExample(None, -1, 'Puntos Medidos')
         evt.Skip()
     
     def on_paint(self, event=None):
@@ -286,36 +323,28 @@ class ThreadLector(threading.Thread):
     Thread que se queda escuchando datos en el puerto de conexión.
     Y mantiene con vida la conexión
     """
-    def __init__(self, threadNum, window, conector):
+    def __init__(self, threadNum, window):
         threading.Thread.__init__(self)
         self.threadNum = threadNum
         self.window = window
-        self.conector = conector
 
     def stop(self):
-        self.window.s.close()
+        pass
     
     def run(self):  
         """thread que se encarga de recibir los datos que vienen de la balanza
-        Por medio de una conexión TCP"""
+        Por medio de una conexión USB"""
         mensaje = ""
         while self.window.alive:
             try:
-                mensaje = self.conector.s.recv(1024)
-            except socket.timeout:
+                """acá irá la rutina que recibe usb"""
+                mensaje = random.randint(0,4096)
+            except:
                 continue
             if mensaje != "":
-                if mensaje == "life":
-                    self.conector.writer("YESILIVE")
-                    #protocolo propio de este programa para mantener viva la 
-                    #conexió y detectar posibles cortes
-                elif mensaje[0:4] == "temp":    #recibe tempXX.X
-                    TEMP = mensaje[4:8]
-                elif mensaje[0:4] == "dwpt":    #recibe dwptXX.X
-                    self.DP = mensaje[4:8]
-                else:
-                    wx.PostEvent(self.window, AcquireEvent(mensaje[:-2]))   
-        print "conexión cerrada"
+                wx.PostEvent(self.window, AcquireEvent(str(mensaje)))
+                time.sleep(1)  
+        print "conexión con balanza cerrada"
 
 app = wx.PySimpleApp()
 # create a window/frame instance, no parent, -1 is default ID
@@ -325,5 +354,6 @@ frame1 = wx.Frame(None, -1, "Balanza", size=(fw, fh))
 # create a panel class instance
 panel1 = Panel1(frame1, -1, fw, fh, tile_file)
 frame1.Show(True)
+
 # start the event loop
 app.MainLoop()
