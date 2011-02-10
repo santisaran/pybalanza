@@ -9,16 +9,16 @@ import random
 import sys
 import os
 import time
-
 import grafico
+
+from wx.lib.agw.shapedbutton import SBitmapButton
 
 sep = os.sep
 if sys.platform=="linux2":
     a=0
-else:
+elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
-
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
     posv = (60+a,128+a,196+a,266+a)
@@ -95,6 +95,7 @@ class Panel1(wx.Panel):
         
         self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_ANY), pos=posbtns(0,0), style=0|wx.NO_BORDER )
         self.btn1.SetBitmapSelected( wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_ANY ))
+        self.btn1.SetTransparent(200)
         
         self.btn2 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY), pos=posbtns(1,0), style=0|wx.NO_BORDER )
         self.btn2.SetBitmapSelected( wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY ))
