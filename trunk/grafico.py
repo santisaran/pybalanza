@@ -1,10 +1,10 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 # linechart.py
 
 import wx
 
-data = [7,8,11,3,12,30,6,6,10,78,65,77]
+data = [1,2,3,2,1,3]
 
 #muestras = ('10', '20', '30')
 class prosdata():
@@ -30,6 +30,7 @@ class LineChart(wx.Panel):
         
     def OnPaint(self, event):
         dc = wx.PaintDC(self)
+        dc.Clear()
         self.ancho,self.alto = self.GetSize()
         dc.SetDeviceOrigin(30, self.alto-30)
         dc.SetAxisOrientation(True, True)
@@ -48,25 +49,37 @@ class LineChart(wx.Panel):
         dc.DrawLine(1, 1, self.ancho-30, 1)
         dc.DrawLine(1, 1, 1, self.alto-50)
         alto = self.alto-50
-        ancho = self.ancho-30
-        for i in range(int(min(data)*0.9),int(round(max(data)*1.1)),self.datos.dif/8):
-            i_ = alto/int(round(max(data)*1.1))*i
-            dc.DrawText(str(i), -30, i_)
-            dc.DrawLine(2,i_, -5,i_)
+        minimo = alto*0.1
 
-        for i in range(0, 300,int(round(ancho/len(data)))):
+        maximo = alto*0.9
+
+        ancho = self.ancho-30
+        dif = maximo - minimo
+        coordmin = int(dif/self.datos.dif*self.datos.mini) #valor minimo en el grafico.
+        coordmax = int(dif/self.datos.dif*self.datos.maxim) #valor maximo en el gráfico.
+        diven = 4
+        for i in range(0,diven+1,1):
+            dc.DrawText("%.2f"%(float(i*self.datos.dif)/diven+self.datos.mini), -30, i*dif/diven+minimo+5)
+            dc.DrawLine(4,i*dif/diven+minimo, -5,i*dif/diven+minimo)
+            
+        for i in range(1, ancho,int(round(ancho/len(data)))):
             dc.DrawLine(i, 2, i, -5)
         
         self.datos.size 
         
-        for i in range(0,self.datos.size,self.datos.size/5):
+        for i in range(0,self.datos.size,self.datos.size/5 if self.datos.size/5>=1 else 1):
             dc.DrawText(str(i),ancho/self.datos.size*i-10,-10)
 
     def DrawGrid(self, dc):
         dc.SetPen(wx.Pen('#d5d5d5'))
-
-        for i in range(20, 220, 20):
-            dc.DrawLine(2, i, 300, i)
+        alto = self.alto-50
+        minimo = alto*0.1
+        maximo = alto*0.9
+        ancho = self.ancho-30
+        dif = maximo - minimo
+        for i in range(int(min(data)*0.9),int(round(max(data)*1.1)),self.datos.dif/8 if self.datos.dif/8>=1 else 1):
+            i_ = alto/int(round(max(data)*1.1))*i
+            dc.DrawLine(2, i_, ancho, i_)
 
         for i in range(100, 300, 100):
             dc.DrawLine(i, 2, i, 200)
@@ -80,10 +93,15 @@ class LineChart(wx.Panel):
 
     def DrawData(self, dc):
         dc.SetPen(wx.Pen('#0ab1ff'))
-        dataxy = [[300/len(data)*x,10*y] for x,y in enumerate(data)]
+        alto = self.alto-50
+        minimo = alto*0.1
+        maximo = alto*0.9
+        ancho = self.ancho-30
+        dif = maximo - minimo
+        dataxy = [[(self.ancho-30)/self.datos.size*x,(y-self.datos.mini)/self.datos.dif*dif+20] for x,y in enumerate(data)]
         print dataxy
-        for i in range(10, 310, 10):
-            dc.DrawSpline(dataxy)
+        #for i in range(0, self.datos.size, 10):
+        dc.DrawSpline(dataxy)
 
 
 class LineChartExample(wx.Frame):
