@@ -5,7 +5,7 @@ import wx
 import threading
 import socket
 #import queusb
-import dbus
+#import dbus
 
 from math import hypot, sin, cos, pi
        
@@ -119,6 +119,6 @@ class WorkerThread(threading.Thread):
         # any Python object)
         #wx.PostEvent(self._notify_window, ResultEvent(10))      
                         
-app = wx.App()
+app = wx.App(0)
 rel=Reloj(None, -1, 'Balanza')
 app.MainLoop()

@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # linechart.py
-
+import time
 import wx
 
-data = [1,2,3,2,1,3]
+data = [10,20,36,25,10,34,24]
 
 #muestras = ('10', '20', '30')
 class prosdata():
@@ -32,9 +32,11 @@ class LineChart(wx.Panel):
         dc = wx.PaintDC(self)
         dc.Clear()
         self.ancho,self.alto = self.GetSize()
+        print self.ancho,self.alto
         dc.SetDeviceOrigin(30, self.alto-30)
         dc.SetAxisOrientation(True, True)
         dc.SetPen(wx.Pen('WHITE'))
+        dc.SetBrush(wx.Brush('GREEN',wx.SOLID))
         dc.DrawRectangle(1, 1, self.alto-10, self.ancho-10)
         self.DrawAxis(dc)
         self.DrawGrid(dc)
