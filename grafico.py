@@ -21,18 +21,23 @@ class LineChart(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundColour('WHITE')
         self.datos = prosdata(data)
-        print self.datos.maxim
-        print self.datos.mini
-        print self.datos.size
-        print self.datos.dif
-        print self.datos.prom
+        #~ print self.datos.maxim
+        #~ print self.datos.mini
+        #~ print self.datos.size
+        #~ print self.datos.dif
+        #~ print self.datos.prom
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        
-    def OnPaint(self, event):
-        dc = wx.PaintDC(self)
-        dc.Clear()
-        self.ancho,self.alto = self.GetSize()
+        self.InitBuffer()
+            
+    def InitBuffer(self):
+        size = self.GetClientSize()
+        self.ancho,self.alto = size[:]
         print self.ancho,self.alto
+        
+        self.buffer = wx.EmptyBitmap(size.width, size.height)
+        dc = wx.BufferedDC(None, self.buffer)
+        dc.SetBackground(wx.Brush(self.GetBackgroundColour()))
+        dc.Clear()
         dc.SetDeviceOrigin(30, self.alto-30)
         dc.SetAxisOrientation(True, True)
         dc.SetPen(wx.Pen('WHITE'))
@@ -42,6 +47,25 @@ class LineChart(wx.Panel):
         self.DrawGrid(dc)
         self.DrawTitle(dc)
         self.DrawData(dc)
+        self.reInitBuffer = False
+        
+    def OnPaint(self, event):
+        dc = wx.BufferedPaintDC(self,self.buffer)
+        #~ 
+        #~ 
+        #~ dc = wx.PaintDC(self)
+        #~ dc.Clear()
+        #~ self.ancho,self.alto = self.GetSize()
+        #~ print self.ancho,self.alto
+        #~ dc.SetDeviceOrigin(30, self.alto-30)
+        #~ dc.SetAxisOrientation(True, True)
+        #~ dc.SetPen(wx.Pen('WHITE'))
+        #~ dc.SetBrush(wx.Brush('GREEN',wx.SOLID))
+        #~ dc.DrawRectangle(1, 1, self.alto-10, self.ancho-10)
+        #~ self.DrawAxis(dc)
+        #~ self.DrawGrid(dc)
+        #~ self.DrawTitle(dc)
+        #~ self.DrawData(dc)
 
     def DrawAxis(self, dc):
         dc.SetPen(wx.Pen('#0AB1FF'))
@@ -101,7 +125,6 @@ class LineChart(wx.Panel):
         ancho = self.ancho-30
         dif = maximo - minimo
         dataxy = [[(self.ancho-30)/self.datos.size*x,(y-self.datos.mini)/self.datos.dif*dif+20] for x,y in enumerate(data)]
-        print dataxy
         #for i in range(0, self.datos.size, 10):
         dc.DrawSpline(dataxy)
 
