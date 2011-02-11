@@ -16,9 +16,9 @@ class prosdata():
         self.dif = self.maxim-self.mini
         self.prom = float(sum(self.data))/len(self.data)
         
-class LineChart(wx.Panel): 
+class LineChart(wx.Window): 
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent)
+        wx.Window.__init__(self, parent)
         self.SetBackgroundColour('WHITE')
         self.datos = prosdata(data)
         #~ print self.datos.maxim
@@ -26,12 +26,12 @@ class LineChart(wx.Panel):
         #~ print self.datos.size
         #~ print self.datos.dif
         #~ print self.datos.prom
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.InitBuffer()
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
             
     def InitBuffer(self):
         size = self.GetClientSize()
-        self.ancho,self.alto = size[:]
+        self.ancho,self.alto = size.width,size.height
         print self.ancho,self.alto
         
         self.buffer = wx.EmptyBitmap(size.width, size.height)
@@ -132,18 +132,16 @@ class LineChart(wx.Panel):
 class LineChartExample(wx.Frame):
     def __init__(self, parent, id, title):
         wx.Frame.__init__(self, parent, id, title, size=(500, 300))
-        self.width,self.height = self.GetSize()
-        panel = wx.Panel(self, -1)
-        panel.SetBackgroundColour('WHITE')
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
-        linechart = LineChart(panel)
-        hbox.Add(linechart, 1, wx.EXPAND | wx.ALL, 15)
-        panel.SetSizer(hbox)
+        #self.width,self.height = self.GetSize()
+        #hbox = wx.BoxSizer(wx.HORIZONTAL)
+        linechart = LineChart(self)
+        #hbox.Add(linechart, 1, wx.EXPAND | wx.ALL, 0)
+        #self.SetSizer(hbox)
 
         self.Centre()
         self.Show(True)
 
 if __name__ == '__main__':
-    app = wx.App()
+    app = wx.App(0)
     LineChartExample(None, -1, 'Valores Medidos')
     app.MainLoop()
