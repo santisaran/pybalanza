@@ -25,6 +25,10 @@ EVT_NEW_DATA_ID = wx.NewId()
 def EVT_RESULT(win, func):
     win.Connect(-1, -1, EVT_NEW_DATA_ID, func)
 
+class Pantalla():
+    def __init__(self,textctrl):
+        self.textctrl = textctrl
+        
 
 class AcquireEvent(wx.PyEvent):
     def __init__(self, data):
@@ -71,6 +75,9 @@ class Panel1(wx.Panel):
         self.ptrpeso=0
         self.ptrvol=0
         self.ptrden=0
+        
+        #tabla de valores de balanza
+        self.t_bal = []
         
         self.estados= ("balanza","contador","calidad","volumen","densidad")
         self.estado = self.estados[0]
@@ -183,7 +190,7 @@ class Panel1(wx.Panel):
         
         EVT_RESULT(self, self.OnAcquireData)
         self.Bind(wx.EVT_MENU_CLOSE, self.OnClosePanel)
-        self.Bind(wx.EVT_CLOSE, self.OnClosePanel)
+        parent.Bind(wx.EVT_CLOSE, self.OnClosePanel)
         
         #self.btn_save_tabla.Enable( False )
         #self.btn_save_tabla.Hide()
@@ -204,7 +211,15 @@ class Panel1(wx.Panel):
     
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
-        self.pantalla.SetValue(str(evt.data))
+        if self.estado == "balanza":
+            if self.unidades_peso.vector[0]=="lb":
+                peso=int((float(evt.data)/453.5923)*1000)
+            elif self.unidades_peso.vector[0]=="kg":
+                peso=float(evt.data)/1000
+            else:
+                peso= evt.data
+            self.peso = peso
+            self.pantalla.SetValue(u"Peso: " + str(peso) + self.unidades_peso.vector[0])
         
 
     #def OnTimeout(self, evt):
@@ -299,6 +314,8 @@ class Panel1(wx.Panel):
     
     def OnGTabla(self,evt):
         """Acción al presionar boton Guardar Tabla"""
+        self.t_bal.append(self.peso)
+        print self.t_bal
         evt.Skip()
         
     def OnVerTabla(self,evt):
@@ -354,7 +371,7 @@ class ThreadLector(threading.Thread):
                 time.sleep(1)  
         print "conexión con balanza cerrada"
 
-app = wx.PySimpleApp()
+app = wx.App()
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
 fh = 484
