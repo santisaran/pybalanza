@@ -3,8 +3,8 @@
 # linechart.py
 import time
 import wx
-
-data = [0,10,23,34,40,51,14,46]
+import random
+data = [random.randint(950,1050) for i in range(20)]
 
 #muestras = ('10', '20', '30')
 class prosdata():
@@ -23,17 +23,16 @@ class prosdata():
         self.prom = float(sum(self.data))/len(self.data)
         #desvío medio.
         self.desmed = float(sum([abs(i-self.prom) for i in self.data]))/self.size
-
-        print self.desmed
         
 class LineChart(wx.Window): 
     def __init__(self, parent):
         wx.Window.__init__(self, parent)
         self.SetBackgroundColour('WHITE')
         self.datos = prosdata(data)
+        self.InitBuffer()        
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.InitBuffer()
+
 
 
     def OnSize(self, evt):
@@ -47,7 +46,6 @@ class LineChart(wx.Window):
         w, h = self.GetClientSize()
         self.alto = h-30
         self.ancho = w-20
-        print h,w
         self.buffer = wx.EmptyBitmap(w, h)
         dc = wx.BufferedDC(wx.ClientDC(self), self.buffer)
         self.DrawGraph(dc)
@@ -55,12 +53,11 @@ class LineChart(wx.Window):
     def DrawGraph(self,dc):
         dc.SetBackground(wx.Brush('WHITE'))
         dc.Clear()
-        dc.SetDeviceOrigin(30, self.alto-30)
+        dc.SetDeviceOrigin(45, self.alto-0)
         dc.SetAxisOrientation(True, True)
-        print "ejes bien"
         dc.SetPen(wx.Pen('WHITE'))
         #dc.SetBrush(wx.Brush('WHITE',wx.SOLID))
-        dc.DrawRectangle(1, 1, self.alto-10, self.ancho-10)
+        #dc.DrawRectangle(1, 1, self.alto-10, self.ancho-10)
         self.DrawAxis(dc)
         self.DrawGrid(dc)
         self.DrawTitle(dc)
@@ -76,7 +73,7 @@ class LineChart(wx.Window):
         font.SetPointSize(8)
         dc.SetFont(font)
         dc.DrawLine(1, 1, self.ancho-30, 1)
-        dc.DrawLine(1, 1, 1, self.alto-50)
+        dc.DrawLine(1, 1, 1, self.alto-20)
         alto = self.alto-50
         minimo = alto*0.1
         maximo = alto*0.9
@@ -87,7 +84,7 @@ class LineChart(wx.Window):
         self.diven = 5 # dividir en tantas partes el eje y
         
         for i in range(0,self.diven+1,1):
-            dc.DrawText("%.2f"%(float(i*self.datos.dif)/self.diven+self.datos.mini), -30, i*dif/self.diven+minimo+5)
+            dc.DrawText("%.2f"%(float(i*self.datos.dif)/self.diven+self.datos.mini), -45, i*dif/self.diven+minimo+5)
             dc.DrawLine(4,i*dif/self.diven+minimo, -5,i*dif/self.diven+minimo)
             
             
@@ -95,7 +92,7 @@ class LineChart(wx.Window):
             dc.DrawLine(i, 2, i, -5)
         
         for i in range(0,self.datos.size,self.datos.size/5 if self.datos.size/5>=1 else 1):
-            dc.DrawText(str(i),ancho/self.datos.size*i-10,-10)
+            dc.DrawText(str(i+1),ancho/self.datos.size*i-10,-10)
 
     def DrawGrid(self, dc):
         dc.SetPen(wx.Pen('#d5d5d5'))
@@ -107,14 +104,14 @@ class LineChart(wx.Window):
         for i in range(0,self.diven+1,1):
             dc.DrawLine(2, i*dif/self.diven+minimo, ancho, i*dif/self.diven+minimo)
 
-        #for i in range(1, ancho,int(round(ancho/len(data)))):
-        #    dc.DrawLine(i, 1, i, alto)
+        for i in range(int(round(ancho/len(data)))+1, ancho,int(round(ancho/len(data)))):
+            dc.DrawLine(i, 1, i, alto)
 
     def DrawTitle(self, dc):
         font =  dc.GetFont()
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         dc.SetFont(font)
-        dc.DrawText('Mediciones', 90, 235)
+        dc.DrawText('Mediciones', (self.ancho-50)/2 ,self.alto-50)
 
 
     def DrawData(self, dc):
