@@ -37,6 +37,7 @@ class LineChart(wx.Window):
 
     def OnSize(self, evt):
         # When the window size changes we need a new buffer.
+        self.Refresh()
         self.InitBuffer()
         
     def InitBuffer(self):
@@ -64,6 +65,7 @@ class LineChart(wx.Window):
         self.DrawData(dc)
     
     def OnPaint(self, event):
+		#self.Refresh()
 		dc = wx.BufferedPaintDC(self, self.buffer)
 
 
@@ -112,6 +114,7 @@ class LineChart(wx.Window):
         font.SetWeight(wx.FONTWEIGHT_BOLD)
         dc.SetFont(font)
         dc.DrawText('Mediciones', (self.ancho-50)/2 ,self.alto-50)
+        
 
 
     def DrawData(self, dc):
@@ -123,15 +126,16 @@ class LineChart(wx.Window):
         dif = int(maximo - minimo)
         
         #acondicionamiento de los datos para la escala actual.
-        dataxy = [[(ancho)/self.datos.size*x,((float(y-self.datos.mini))/self.datos.dif)*dif+int(alto*0.1)-3,6,6] for x,y in enumerate(self.datos.data)]
-        dc.SetPen(wx.Pen("blue", 2,wx.STIPPLE))
+        dataxy = [[(ancho)/self.datos.size*x,((float(y-self.datos.mini))/self.datos.dif)*dif+int(alto*0.1)-3,3,3] for x,y in enumerate(self.datos.data)]
+        dc.SetPen(wx.Pen("RED", 5))
         dc.DrawEllipseList(dataxy)
         
+        print dc.GetTextExtent("hola mundo")
         # Linea promedio.
         dc.SetPen(wx.Pen("Green",2,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3,ancho,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3)
 
-        dc.SetPen(wx.Pen("LightGray",1,wx.SHORT_DASH))
+        dc.SetPen(wx.Pen("Gray",1,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3\
             ,ancho,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
         dc.DrawLine(0,(self.datos.prom-self.datos.mini-self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3,\
