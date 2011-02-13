@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 import wx
-import cStringIO
-import base64
 import threading
 import random
 import sys
 import os
 import time
 import grafico
-
 from wx.lib.agw.shapedbutton import SBitmapButton
 
 sep = os.sep

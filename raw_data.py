@@ -24,7 +24,6 @@ def raw_test():
     # first be kind with local encodings
     import codecs, sys
     global contador
-    sys.stdout = codecs.getwriter('mbcs')(sys.stdout)
     # browse devices...
     all_hids = hid.find_all_hid_devices()
     contador=0
