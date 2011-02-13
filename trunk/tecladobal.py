@@ -8,6 +8,8 @@ import os
 import time
 import grafico
 from wx.lib.agw.shapedbutton import SBitmapButton
+from decimal import Decimal as dec
+import list_report
 
 sep = os.sep
 if sys.platform=="linux2":
@@ -84,6 +86,7 @@ class Panel1(wx.Panel):
         self.unidad_peso = self.unidades_peso.vector[0]
         self.unidad_vol = self.unidades_vol.vector[0]
         self.unidad_den = self.unidades_den.vector[0]
+        self.uni = "gr"
         #~ for i in posh:
             #~ for j in posv:
                 #~ a = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"btn1.png", wx.BITMAP_TYPE_ANY), pos=(i,j), style=0|wx.NO_BORDER )
@@ -202,7 +205,8 @@ class Panel1(wx.Panel):
         #self.Bind(wx.EVT_TIMER, self.OnTimeout)
         #self.timer = wx.Timer(self)
         #self.timer.Start(1500)
-    
+        parent.Centre( wx.BOTH )
+        
         self.alive = True
         self.thread = ThreadLector(0, self)
         self.thread.start()
@@ -212,14 +216,15 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         if self.estado == "balanza":
-            if self.unidades_peso.vector[0]=="lb":
-                peso=int((float(evt.data)/453.5923)*1000)
-            elif self.unidades_peso.vector[0]=="kg":
-                peso=float(evt.data)/1000
+            if self.uni=="lb":
+                peso=int((dec(evt.data)/dec("453.5923"))*1000)
+            elif self.uni=="kg":
+                peso=dec(evt.data)/dec("1000")
             else:
                 peso= evt.data
-            self.peso = peso
-            self.pantalla.SetValue(u"Peso: " + str(peso) + self.unidades_peso.vector[0])
+            #para almacenar en tabla guardo directo el valor de la balanza.
+            self.peso = evt.data
+            self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
         
 
     #def OnTimeout(self, evt):
@@ -242,8 +247,6 @@ class Panel1(wx.Panel):
     
     def OnClosePanel(self,evt):
 		"""cerrando ventana"""
-		time.sleep(2)
-		print "cerrando"
 		self.alive=False
 		self.thread.join()
 		evt.Skip()
@@ -288,6 +291,7 @@ class Panel1(wx.Panel):
         """Acción al presionar unidad"""
         if self.estado=="balanza":
             self.unidades_peso.up()
+            self.uni = self.unidades_peso.vector[0]
         evt.Skip()
         
     def OnTara(self,evt):
@@ -314,12 +318,16 @@ class Panel1(wx.Panel):
     
     def OnGTabla(self,evt):
         """Acción al presionar boton Guardar Tabla"""
-        self.t_bal.append(self.peso)
+        self.idact = 0
+        self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
         print self.t_bal
         evt.Skip()
         
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
+        if self.estado == "balanza":
+            frame = list_report.ListaFrame(self.t_bal)
+            frame.Show()
         evt.Skip()
     
     def OnVerGrafico(self,evt):
