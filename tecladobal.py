@@ -349,7 +349,6 @@ class Panel1(wx.Panel):
             else:
                 self.idact=0
                 self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
-                print self.t_muestras
         evt.Skip()
         
     def OnDown(self,evt):
