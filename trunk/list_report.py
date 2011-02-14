@@ -3,7 +3,7 @@ import sys, random
 import gettext
 _ = gettext.gettext
 
-data=[['0','2397', '20110213183211'], ['2','3328', '20110213183211'], ['3','3328', '20110213183211']]
+data=[]
 
 class ListaFrame(wx.Frame):
     def __init__(self,data):
