@@ -77,6 +77,7 @@ class Panel1(wx.Panel):
         self.ptrpeso=0
         self.ptrvol=0
         self.ptrden=0
+        self.tara = 0
         
         #tabla de valores de balanza
         self.t_bal = []
@@ -217,11 +218,11 @@ class Panel1(wx.Panel):
         """Evento de recepción de datos"""
         if self.estado == "balanza":
             if self.uni=="lb":
-                peso=int((dec(evt.data)/dec("453.5923"))*1000)
+                peso=int((dec(int(evt.data)-self.tara)/dec("453.5923"))*1000)
             elif self.uni=="kg":
-                peso=dec(evt.data)/dec("1000")
+                peso=dec(int(evt.data)-self.tara)/dec("1000")
             else:
-                peso= evt.data
+                peso= int(evt.data)-self.tara
             #para almacenar en tabla guardo directo el valor de la balanza.
             self.peso = evt.data
             self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
@@ -292,10 +293,13 @@ class Panel1(wx.Panel):
         if self.estado=="balanza":
             self.unidades_peso.up()
             self.uni = self.unidades_peso.vector[0]
+            wx.PostEvent(self, AcquireEvent(str(self.peso)))
         evt.Skip()
         
     def OnTara(self,evt):
         """Acción al presionar botón Tara"""
+        self.tara = int(self.peso)
+        wx.PostEvent(self, AcquireEvent(str(self.peso)))
         evt.Skip()
         
     def OnAceptar(self,evt):
