@@ -343,9 +343,10 @@ class Panel1(wx.Panel):
         """Acción al presionar botón Aceptar"""
         if self.estado == "contador":
             if not self.coloque:
-                self.muestra = self.valoractual
-                self.coloque=True
-                self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
+                if self.valoractual>0
+                    self.muestra = self.valoractual
+                    self.coloque=True
+                    self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
             else:
                 self.idact=0
                 self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
@@ -400,11 +401,10 @@ class Panel1(wx.Panel):
     def sample_handler(self,data):
         global contador
         if contador == 10:
-            contador = 0
-            #~ print "Peso: ", 
-            #~ peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
-            #~ print peso
-            wx.PostEvent(self, AcquireEvent(str(data[1])))
+            contador = 0 
+            peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
+            #wx.PostEvent(self, AcquireEvent(str(data[1])))
+            wx.PostEvent(self,AcquireEvent(str(peso)))
         contador+=1
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
@@ -429,7 +429,8 @@ class ThreadLector(threading.Thread):
         
         if sys.platform=="win32":
             from pywinusb import hid
-            filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+            #filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+            filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
             balanza = filtro.get_devices()
             if balanza:
                 print "existe"
@@ -456,7 +457,7 @@ class ThreadLector(threading.Thread):
                 dev.detach_kernel_driver(interface.bInterfaceNumber)
             dev.set_configuration()
             dev.reset()
-            pesadas = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            pesadas = [0,0,0,0,0,0,0,0,0,0,0,0,0]
             cuenta=0.0
             valor_anterior=0
             while self.window.alive:
@@ -475,9 +476,8 @@ class ThreadLector(threading.Thread):
                         for a in pesadas:
                             valor+=a
                         valor = valor / len(pesadas)
-                        if valor != valor_anterior:
-                            wx.PostEvent(self.window, AcquireEvent(str(valor)))
-                            valor_anterior = valor
+                        wx.PostEvent(self.window, AcquireEvent(str(valor)))
+                            
            
 app = wx.App()
 # create a window/frame instance, no parent, -1 is default ID
