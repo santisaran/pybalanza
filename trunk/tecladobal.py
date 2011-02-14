@@ -142,7 +142,7 @@ class Panel1(wx.Panel):
         self.btn_uni.SetBitmapSelected( wx.Bitmap( self.botones_press[7], wx.BITMAP_TYPE_ANY ))
         
         self.btn7 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[8], wx.BITMAP_TYPE_ANY), pos=posbtns(0,2), style=0|wx.NO_BORDER )
-        #self.btn7.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
+        self.btn7.SetBitmapSelected( wx.Bitmap( self.botones_press[8], wx.BITMAP_TYPE_ANY ))
         
         self.btn8 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[9], wx.BITMAP_TYPE_ANY), pos=posbtns(1,2), style=0|wx.NO_BORDER )
         self.btn8.SetBitmapSelected( wx.Bitmap( self.botones_press[9], wx.BITMAP_TYPE_ANY ))
