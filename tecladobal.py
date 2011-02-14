@@ -298,7 +298,7 @@ class Panel1(wx.Panel):
         self.estado = "contador"
         self.coloque = False
         self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque Muestra") 
-        self.BtnsBal(False,True,False)
+        self.BtnsBal(True,True,False)
         #else:
             #self.coloque = False
             
@@ -343,13 +343,10 @@ class Panel1(wx.Panel):
         """Acción al presionar botón Aceptar"""
         if self.estado == "contador":
             if not self.coloque:
-                if self.valoractual>0:
+                if int(self.valoractual)>0:
                     self.muestra = self.valoractual
                     self.coloque=True
                     self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
-            else:
-                self.idact=0
-                self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
         evt.Skip()
         
     def OnDown(self,evt):
@@ -367,6 +364,13 @@ class Panel1(wx.Panel):
     def OnGTabla(self,evt):
         """Acción al presionar boton Guardar Tabla"""
         self.idact = 0
+        if self.estado=="balanza":
+            valor=self.peso
+        elif self.estado == "contador":
+            valor=str(self.cantidad)
+        else:
+            valor=""
+        self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
         self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
         evt.Skip()
         
@@ -457,7 +461,7 @@ class ThreadLector(threading.Thread):
                 dev.detach_kernel_driver(interface.bInterfaceNumber)
             dev.set_configuration()
             dev.reset()
-            pesadas = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+            pesadas = [0,0,0,0,0,0,0,0,0,0]
             cuenta=0.0
             valor_anterior=0
             while self.window.alive:
