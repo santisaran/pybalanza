@@ -32,6 +32,22 @@ class ListaFrame(wx.Frame):
         self.m_choice1.SetSelection( 0 )
         bSizer2.Add( self.m_choice1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 0 )
 
+
+        self.m_menubar1 = wx.MenuBar( 0 )
+        self.m_menu1 = wx.Menu()
+        self.m_menuItem1 = wx.MenuItem( self.m_menu1, wx.ID_ANY, _("Abrir"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu1.AppendItem( self.m_menuItem1 )
+        
+        self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, _("Guardar"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu1.AppendItem( self.m_menuItem2 )
+        
+        self.m_menuItem3 = wx.MenuItem( self.m_menu1, wx.ID_ANY, _("Cerrar"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu1.AppendItem( self.m_menuItem3 )
+        
+        self.m_menubar1.Append( self.m_menu1, _("Lista") ) 
+        
+        self.SetMenuBar( self.m_menubar1 )
+        
         
         # Add some columns
         for col, text in [[0,"ID"],[1,"peso"],[2,"timestamp"]]:
@@ -44,9 +60,9 @@ class ListaFrame(wx.Frame):
                 self.lista.SetStringItem(index, col+1, text)
 
         # set the width of the columns in various ways
-        self.lista.SetColumnWidth(0, 30)
-        self.lista.SetColumnWidth(1, wx.LIST_AUTOSIZE)
-        self.lista.SetColumnWidth(2, wx.LIST_AUTOSIZE)
+        self.lista.SetColumnWidth(0, 50)
+        self.lista.SetColumnWidth(1, 150)
+        self.lista.SetColumnWidth(2, 150)
         #self.lista.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
 
 
