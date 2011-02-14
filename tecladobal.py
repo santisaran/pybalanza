@@ -7,8 +7,9 @@ import sys
 import os
 import time
 import grafico
-from wx.lib.agw.shapedbutton import SBitmapButton
+import usb_bal
 from decimal import Decimal as dec
+from pywinusb import hid
 import list_report
 
 sep = os.sep
@@ -246,10 +247,10 @@ class Panel1(wx.Panel):
     #------------------------------------------------------------------#
     
     def OnClosePanel(self,evt):
-		"""cerrando ventana"""
-		self.alive=False
-		self.thread.join()
-		evt.Skip()
+        """cerrando ventana"""
+        self.alive=False
+        self.thread.join()
+        evt.Skip()
     
     def OnBalanza(self,evt):
         """Acción al presionar boton 1/Balanza"""
@@ -347,7 +348,16 @@ class Panel1(wx.Panel):
         for x in range(0, self.fw, iw):
             for y in range(0, self.fh, ih):
                 dc.DrawBitmap(self.bmp1, x, y, True)
-                
+    
+    def sample_handler(self,data):
+        global contador
+        if contador == 10:
+            contador = 0
+            #~ print "Peso: ", 
+            #~ peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
+            #~ print peso
+            wx.PostEvent(self, AcquireEvent(str(data[1])))
+        contador+=1
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
@@ -367,18 +377,20 @@ class ThreadLector(threading.Thread):
     def run(self):  
         """thread que se encarga de recibir los datos que vienen de la balanza
         Por medio de una conexión USB"""
-        mensaje = ""
-        while self.window.alive:
-            try:
-                """acá irá la rutina que recibe usb"""
-                mensaje = random.randint(0,4096)
-            except:
-                continue
-            if mensaje != "":
-                wx.PostEvent(self.window, AcquireEvent(str(mensaje)))
-                time.sleep(1)  
-        print "conexión con balanza cerrada"
-
+        global contador
+    
+        filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+        balanza = filtro.get_devices()[0]
+        contador=0
+        try:
+            balanza.open()
+            balanza.set_raw_data_handler(self.window.sample_handler)
+            while balanza.is_plugged() and self.window.alive:
+                time.sleep(2)
+        finally:
+            balanza.close()
+            print "fin de comunicación"
+    
 app = wx.App()
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
