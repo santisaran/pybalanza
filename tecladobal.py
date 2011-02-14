@@ -7,9 +7,8 @@ import sys
 import os
 import time
 import grafico
-import usb_bal
 from decimal import Decimal as dec
-from pywinusb import hid
+
 import list_report
 
 sep = os.sep
@@ -378,19 +377,60 @@ class ThreadLector(threading.Thread):
         """thread que se encarga de recibir los datos que vienen de la balanza
         Por medio de una conexión USB"""
         global contador
-    
-        filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
-        balanza = filtro.get_devices()[0]
-        contador=0
-        try:
-            balanza.open()
-            balanza.set_raw_data_handler(self.window.sample_handler)
-            while balanza.is_plugged() and self.window.alive:
-                time.sleep(2)
-        finally:
-            balanza.close()
-            print "fin de comunicación"
-    
+        
+        if sys.platform=="win32":
+            from pywinusb import hid
+            filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+            balanza = filtro.get_devices()[0]
+            contador=0
+            try:
+                balanza.open()
+                balanza.set_raw_data_handler(self.window.sample_handler)
+                while balanza.is_plugged() and self.window.alive:
+                    time.sleep(2)
+            finally:
+                balanza.close()
+                print "fin de comunicación"
+        elif sys.platform == "linux2":
+            import usb.core
+            import usb.util
+            dev =  usb.core.find(idVendor=0x1345, idProduct=0x1000)
+            #dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
+            interface = dev.get_interface_altsetting()
+            if dev.is_kernel_driver_active(interface.bInterfaceNumber) is True:
+                dev.detach_kernel_driver(interface.bInterfaceNumber)
+            dev.set_configuration()
+            dev.reset()
+            pesadas = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            cuenta=0.0
+            valor_anterior=0
+            while self.window.alive:
+                cadena = dev.read(0x81,32)
+                if len(cadena)>30:
+                    
+                    #peso = [chr(a) for a in cadena]
+                    #gramos = float(int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3]))/4096
+                    gramos = cadena[0]
+                    pesadas.pop(0)
+                    pesadas.append(gramos)
+                    cuenta+=1
+                    if cuenta == 10:
+                        cuenta = 0
+                        valor=0
+                        for a in pesadas:
+                            valor+=a
+                        valor = valor / len(pesadas)
+                        if valor != valor_anterior:
+                            wx.PostEvent(self.window, AcquireEvent(str(valor)))
+                            print valor
+                            valor_anterior = valor
+            
+            
+            
+            
+            
+            
+            
 app = wx.App()
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
