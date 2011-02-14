@@ -78,9 +78,12 @@ class Panel1(wx.Panel):
         self.ptrvol=0
         self.ptrden=0
         self.tara = 0
-        
+        self.peso = None
         #tabla de valores de balanza
         self.t_bal = []
+        #tabla de valores de muestras
+        self.t_muestras = []
+        self.idact = "0"
         
         self.estados= ("balanza","contador","calidad","volumen","densidad")
         self.estado = self.estados[0]
@@ -207,32 +210,49 @@ class Panel1(wx.Panel):
         #self.timer = wx.Timer(self)
         #self.timer.Start(1500)
         parent.Centre( wx.BOTH )
-        
         self.alive = True
         self.thread = ThreadLector(0, self)
         self.thread.start()
-    
-    #valor aleatorio para probar soft sinbalanza.
-    
+        self.tara = 0
+        self.timer = wx.Timer(self)  # message will be sent to the panel
+        self.timer.Start(100,True)  # x100 milliseconds
+        self.Bind(wx.EVT_TIMER, self.on_timer)
+
+#autotara al inicio. cada 100 milisegundos chekea el valor de peso. hasta que
+#sea distinto de None.
+    def on_timer(self,event):
+        if self.peso==None:
+            self.timer.Start(100,True)
+        else:
+            self.tara=int(self.peso)
+        event.Skip()
+
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
+        if self.uni=="lb":
+            peso=int((dec(int(evt.data)-self.tara)/dec("453.5923"))*1000)
+        elif self.uni=="kg":
+            peso=dec(int(evt.data)-self.tara)/dec("1000")
+        else:
+            peso= int(evt.data)-self.tara
         if self.estado == "balanza":
-            if self.uni=="lb":
-                peso=int((dec(int(evt.data)-self.tara)/dec("453.5923"))*1000)
-            elif self.uni=="kg":
-                peso=dec(int(evt.data)-self.tara)/dec("1000")
-            else:
-                peso= int(evt.data)-self.tara
             #para almacenar en tabla guardo directo el valor de la balanza.
             self.peso = evt.data
             self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
-        
+            #variable con el valor actual en pantalla.
+            self.valoractual = str(peso)
+        if self.estado == "contador":
+            if not self.coloque:
+                #para almacenar en tabla guardo directo el valor de la balanza.
+                self.peso = evt.data
+                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
+                #variable con el valor actual en pantalla.
+                self.valoractual = str(peso)
+            else:
+                self.cantidad = int(peso)/int(self.muestra)
+                self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
 
-    #def OnTimeout(self, evt):
-    #    wx.PostEvent(self, AcquireEvent(str(random.randint(0,4096))))
-        #self.pantalla.SetValue("Peso: " + str(random.randint(0, 4096)) + self.unidades_peso.vector[0])
-        #self.pantalla.SetValue("Contador: " + str(random.randint(0, 4000)) + " pcs")
-        
+              
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
         """ Muestra/oculta los botones de la funcion pesar """
         self.btn_save_tabla.Enable(guardar)
@@ -262,9 +282,14 @@ class Panel1(wx.Panel):
     
     def OnContador(self,evt):
         """Acción al presionar boton 2/Contador"""
-        if self.estado != "contador":
-            self.estado = "contador"
-            self.BtnsBal(False,True,False)
+        #if self.estado != "contador":
+        self.estado = "contador"
+        self.coloque = False
+        self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque Muestra") 
+        self.BtnsBal(False,True,False)
+        #else:
+            #self.coloque = False
+            
         evt.Skip()
         
     def OnCalidad(self,evt):
@@ -304,6 +329,15 @@ class Panel1(wx.Panel):
         
     def OnAceptar(self,evt):
         """Acción al presionar botón Aceptar"""
+        if self.estado == "contador":
+            if not self.coloque:
+                self.muestra = self.valoractual
+                self.coloque=True
+                self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
+            else:
+                self.idact=0
+                self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
+                print self.t_muestras
         evt.Skip()
         
     def OnDown(self,evt):
@@ -317,20 +351,20 @@ class Panel1(wx.Panel):
     def OnFin(self,evt):
         """Acción al presionar botón up"""
         evt.Skip()
-        
-    
-    
+
     def OnGTabla(self,evt):
         """Acción al presionar boton Guardar Tabla"""
         self.idact = 0
         self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
-        print self.t_bal
         evt.Skip()
         
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
             frame = list_report.ListaFrame(self.t_bal)
+            frame.Show()
+        if self.estado == "contador":
+            frame = list_report.ListaFrame(self.t_muestras)
             frame.Show()
         evt.Skip()
     
@@ -391,10 +425,9 @@ class ThreadLector(threading.Thread):
                 balanza.open()
                 balanza.set_raw_data_handler(self.window.sample_handler)
                 while balanza.is_plugged() and self.window.alive:
-                    time.sleep(2)
+                    time.sleep(1)
             finally:
                 balanza.close()
-                print "fin de comunicación"
         elif sys.platform == "linux2":
             import usb.core
             import usb.util
@@ -426,15 +459,8 @@ class ThreadLector(threading.Thread):
                         valor = valor / len(pesadas)
                         if valor != valor_anterior:
                             wx.PostEvent(self.window, AcquireEvent(str(valor)))
-                            print valor
                             valor_anterior = valor
-            
-            
-            
-            
-            
-            
-            
+           
 app = wx.App()
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
