@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# linechart.py
+
 import time
 import wx
 import random
@@ -37,13 +37,13 @@ class LineChart(wx.Window):
 
     def OnSize(self, evt):
         # When the window size changes we need a new buffer.
-        self.Refresh()
+        self.Refresh()	# si no se pone este refresh, solo se escribe el área nueva
         self.InitBuffer()
         
     def InitBuffer(self):
-        # Create the buffer bitmap to be the same size as the window,
-        # then draw our graph to it.  Since we use wx.BufferedDC
-        # whatever is drawn to the buffer is also drawn to the window.
+        """Create the buffer bitmap to be the same size as the window,\
+			then draw our graph to it.  Since we use wx.BufferedDC
+			whatever is drawn to the buffer is also drawn to the window."""
         w, h = self.GetClientSize()
         self.alto = h-30
         self.ancho = w-20
@@ -130,7 +130,7 @@ class LineChart(wx.Window):
         dc.SetPen(wx.Pen("RED", 5))
         dc.DrawEllipseList(dataxy)
         
-        print dc.GetTextExtent("hola mundo")
+        #print dc.GetTextExtent("hola mundo")
         # Linea promedio.
         dc.SetPen(wx.Pen("Green",2,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3,ancho,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3)
