@@ -343,7 +343,7 @@ class Panel1(wx.Panel):
         """Acción al presionar botón Aceptar"""
         if self.estado == "contador":
             if not self.coloque:
-                if self.valoractual>0
+                if self.valoractual>0:
                     self.muestra = self.valoractual
                     self.coloque=True
                     self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
@@ -479,7 +479,7 @@ class ThreadLector(threading.Thread):
                         wx.PostEvent(self.window, AcquireEvent(str(valor)))
                             
            
-app = wx.App()
+app = wx.App(0)
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
 fh = 484
