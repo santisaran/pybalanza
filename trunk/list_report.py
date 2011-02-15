@@ -2,13 +2,11 @@ import wx
 import os, sys, random
 import gettext
 _ = gettext.gettext
-wildcard = "Tex Sep por comas (*.cvs)|*.cvs|"     \
-           "Compiled Python (*.pyc)|*.pyc|" \
-           "SPAM files (*.spam)|*.spam|"    \
-           "Egg file (*.egg)|*.egg|"        \
+wildcard = "Texto Separado por comas (*.cvs)|*.cvs|"     \
            "All files (*.*)|*.*"
 
-data=[]
+data=[["0","1002","20110212121200"],["1","1002","20110212121201"],["2","1002","20110212121202"],
+    ["3","1002","20110212121203"],["4","1002","20110212121204"]]
 columnas = ["ID","Peso","TimeStamp"]
 class ListaFrame(wx.Frame):
     def __init__(self,data,columnas=columnas):
@@ -48,17 +46,18 @@ class ListaFrame(wx.Frame):
         
         self.m_cerrar = wx.MenuItem( self.m_menu1, wx.ID_ANY, _("Cerrar"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu1.AppendItem( self.m_cerrar )
-        
         self.m_menubar1.Append( self.m_menu1, _("Lista") ) 
-        
+        self.OnPoblar(columnas)
         self.SetMenuBar( self.m_menubar1 )
-        
-        
+        self.Bind( wx.EVT_MENU, self.OnMenuAbrir, id = self.m_abrir.GetId() )
+        self.Bind( wx.EVT_MENU, self.OnMenuGuardar, id = self.m_guardar.GetId() )
+        self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
+        self.m_choice1.Bind( wx.EVT_CHOICE, self.OnChoiceUnidad )
+    
+    def OnPoblar(self,columnas):
         # Add some columns
-        
         for col, text in enumerate(columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
             self.lista.InsertColumn(col, text)
-
         # add the rows
         for item in data:
             index = self.lista.InsertStringItem(sys.maxint, str(item[0]))
@@ -70,12 +69,15 @@ class ListaFrame(wx.Frame):
         self.lista.SetColumnWidth(1, 150)
         self.lista.SetColumnWidth(2, 150)
         #self.lista.SetColumnWidth(3, wx.LIST_AUTOSIZE_USEHEADER)
+     
     
-        self.Bind( wx.EVT_MENU, self.OnMenuAbrir, id = self.m_abrir.GetId() )
-        self.Bind( wx.EVT_MENU, self.OnMenuGuardar, id = self.m_guardar.GetId() )
-        self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
-    
-    
+    def OnChoiceUnidad(self,evt):
+        """Cambia de unidad"""
+        unidad = self.m_choice1.GetStringSelection()
+        
+        
+
+
     def OnMenuAbrir(self, evt):
         #self.log.WriteText("CWD: %s\n" % os.getcwd())
         """ Crea el dialogo para abrir un archivo. Se fuerza el directorio actual."""
