@@ -366,7 +366,7 @@ class Panel1(wx.Panel):
     def OnGTabla(self,evt):
         """Acción al presionar boton Guardar Tabla"""
         if self.estado=="balanza":
-            self.idact =str(int(self.idact)+1) 
+            self.idact =str(int(self.idact)+1)  
             valor=self.peso
             self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
         elif self.estado == "contador":
