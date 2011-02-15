@@ -6,10 +6,10 @@ import random
 import sys
 import os
 import time
+
 #ventana para graficar calidad:
 import grafico
 from decimal import Decimal as dec
-
 import list_report
 
 sep = os.sep
@@ -24,15 +24,17 @@ def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
     posv = (60+a,128+a,196+a,266+a)
     return (posh[x],posv[y])
-
+    
+#----------------------------------------------------------------------#
 #----------------------------------------------------------------------#
 #------------------ Evento al llegar datos por USB --------------------#
 #----------------------------------------------------------------------#
+#----------------------------------------------------------------------#
+
 EVT_NEW_DATA_ID = wx.NewId()
 
 def EVT_RESULT(win, func):
     win.Connect(-1, -1, EVT_NEW_DATA_ID, func)
-
 
 class AcquireEvent(wx.PyEvent):
     def __init__(self, data):
@@ -62,7 +64,6 @@ class puntero():
 #----------------------------------------------------------------------#
 #----------------------Panel Principal --------------------------------#
 #----------------------------------------------------------------------#
-
 class Panel1(wx.Panel):
     def __init__(self, parent, id, fw, fh, tile_file):
         # crea el panel
@@ -242,17 +243,16 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         if self.uni=="lb":
-            peso=int((dec(int(evt.data)-self.tara)/dec("453.5923"))*1000)
+            peso=int((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453.5923"))*1000)
         elif self.uni=="kg":
-            peso=dec(int(evt.data)-self.tara)/dec("1000")
+            peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
         else:
-            peso= int(evt.data)-self.tara
+            peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
             self.peso = evt.data
             self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
-            #variable con el valor actual en pantalla.
-        #    self.valoractual = str(peso)
+        
         if self.estado == "contador":
             if not self.coloque:
                 #para almacenar en tabla guardo directo el valor de la balanza.
