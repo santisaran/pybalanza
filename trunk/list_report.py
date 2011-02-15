@@ -136,7 +136,7 @@ class ListaFrame(wx.Frame):
             #
             # You might want to add some error checking :-)
             #
-
+ 
         # Note that the current working dir didn't change. This is good since
         # that's the way we set it up.
         #self.log.WriteText("CWD: %s\n" % os.getcwd())
