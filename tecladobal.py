@@ -252,18 +252,18 @@ class Panel1(wx.Panel):
             self.peso = evt.data
             self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
             #variable con el valor actual en pantalla.
-            self.valoractual = str(peso)
+        #    self.valoractual = str(peso)
         if self.estado == "contador":
             if not self.coloque:
                 #para almacenar en tabla guardo directo el valor de la balanza.
                 self.peso = evt.data
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
                 #variable con el valor actual en pantalla.
-                self.valoractual = str(peso)
+                
             else:
                 self.cantidad = int(peso)/int(self.muestra)
                 self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
-
+        self.valoractual = str(peso)
               
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
         """ Muestra/oculta los botones de la funcion pesar """
@@ -359,6 +359,7 @@ class Panel1(wx.Panel):
         
     def OnFin(self,evt):
         """Acción al presionar botón up"""
+        self.OnBalanza(evt)
         evt.Skip()
 
     def OnGTabla(self,evt):
@@ -366,12 +367,10 @@ class Panel1(wx.Panel):
         self.idact = 0
         if self.estado=="balanza":
             valor=self.peso
+            self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
         elif self.estado == "contador":
             valor=str(self.cantidad)
-        else:
-            valor=""
-        self.t_muestras.append([str(self.idact),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
-        self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
+            self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
         evt.Skip()
         
     def OnVerTabla(self,evt):
@@ -380,7 +379,7 @@ class Panel1(wx.Panel):
             frame = list_report.ListaFrame(self.t_bal)
             frame.Show()
         if self.estado == "contador":
-            frame = list_report.ListaFrame(self.t_muestras)
+            frame = list_report.ListaFrame(self.t_muestras,["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"])
             frame.Show()
         evt.Skip()
     
