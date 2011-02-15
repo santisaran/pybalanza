@@ -453,8 +453,8 @@ class ThreadLector(threading.Thread):
         elif sys.platform == "linux2":
             import usb.core
             import usb.util
-            dev =  usb.core.find(idVendor=0x1345, idProduct=0x1000)
-            #dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
+            #dev =  usb.core.find(idVendor=0x1345, idProduct=0x1000)
+            dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
             interface = dev.get_interface_altsetting()
             if dev.is_kernel_driver_active(interface.bInterfaceNumber) is True:
                 dev.detach_kernel_driver(interface.bInterfaceNumber)
@@ -467,9 +467,9 @@ class ThreadLector(threading.Thread):
                 cadena = dev.read(0x81,32)
                 if len(cadena)>30:
                     
-                    #peso = [chr(a) for a in cadena]
-                    #gramos = float(int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3]))/4096
-                    gramos = cadena[0]
+                    peso = [chr(a) for a in cadena]
+                    gramos = (int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3]))
+                    #gramos = cadena[0]
                     pesadas.pop(0)
                     pesadas.append(gramos)
                     cuenta+=1
