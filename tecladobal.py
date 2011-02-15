@@ -368,10 +368,10 @@ class Panel1(wx.Panel):
         if self.estado=="balanza":
             self.idact =str(int(self.idact)+1)  
             valor=self.peso
-            self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y%m%d%H%M%S",time.localtime())])
+            self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
             valor=str(self.cantidad)
-            self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y%m%d%H%M%S",time.localtime())])
+            self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnVerTabla(self,evt):
