@@ -9,7 +9,7 @@ data=[["0","1002","20110212121200"],["1","1002","20110212121201"],["2","1002","2
     ["3","1002","20110212121203"],["4","1002","20110212121204"]]
 columnas = ["ID","Peso","TimeStamp"]
 class ListaFrame(wx.Frame):
-    def __init__(self,data,columnas=columnas):
+    def __init__(self,datos,columnas=columnas):
         wx.Frame.__init__(self, None, -1,
                           "wx.ListCtrl in wx.LC_REPORT mode",
                           size=(600,400), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
@@ -17,9 +17,9 @@ class ListaFrame(wx.Frame):
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         self.lista = wx.ListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT|wx.VSCROLL)
         bSizer1.Add(self.lista, 1, wx.ALL|wx.EXPAND, 5)
-        
+			
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        
+        self.data = datos
         self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, "Unidad")
         self.m_staticText1.Wrap( -1 )
         bSizer2.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -59,7 +59,7 @@ class ListaFrame(wx.Frame):
         for col, text in enumerate(columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
             self.lista.InsertColumn(col, text)
         # add the rows
-        for item in data:
+        for item in self.data:
             index = self.lista.InsertStringItem(sys.maxint, str(item[0]))
             for col, text in enumerate(item[1:]):
                 self.lista.SetStringItem(index, col+1, text)

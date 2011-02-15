@@ -376,6 +376,7 @@ class Panel1(wx.Panel):
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
+            print self.t_bal
             frame = list_report.ListaFrame(self.t_bal)
             frame.Show()
         if self.estado == "contador":
