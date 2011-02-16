@@ -85,7 +85,7 @@ class Panel1(wx.Panel):
                         "images"+sep+"btn_up.png", "images"+sep+"btn0.png",   "images"+sep+"btn_down.png","images"+sep+"btn._punto.png")
         self.botones_press = [i[:-4]+"_press.png" for i in self.botones]
         self.unidades_peso = puntero([u"gr","kg","lb"])
-        self.unidades_vol = puntero([u"cm³",u"dm³",u"in³"])
+        self.unidades_vol = puntero([u"cm3",u"dm3",u"in3"])
         self.unidades_den = puntero(["gr","kg","lb"])
         
         self.ptrpeso=0
@@ -105,6 +105,7 @@ class Panel1(wx.Panel):
         self.unidad_vol = self.unidades_vol.vector[0]
         self.unidad_den = self.unidades_den.vector[0]
         self.uni = "gr"
+        self.uni_vol = "cm3"
         #~ for i in posh:
             #~ for j in posv:
                 #~ a = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"btn1.png", wx.BITMAP_TYPE_ANY), pos=(i,j), style=0|wx.NO_BORDER )
@@ -230,6 +231,8 @@ class Panel1(wx.Panel):
         self.timer.Start(100,True)  # x100 milliseconds
         wx.EVT_TIMER(self, TIMER_ID, self.on_timer)
         #self.Bind(wx.EVT_TIMER, self.on_timer)
+        self.voldb = False
+        self.volaceptado = False
 
 #autotara al inicio. cada 100 milisegundos chekea el valor de peso. hasta que
 #sea distinto de None.
@@ -263,6 +266,13 @@ class Panel1(wx.Panel):
             else:
                 self.cantidad = int(peso)/int(self.muestra)
                 self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
+        elif self.estado == "volumen":
+            if self.volaceptado:
+                self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
+            else:
+                self.pantalla.SetFont( wx.Font( 18, 70, 90, 90, False, wx.EmptyString ) )
+                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
+            
         self.valoractual = str(peso)
               
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
@@ -314,6 +324,8 @@ class Panel1(wx.Panel):
         
     def OnVolumen(self,evt):
         """Acción al presionar boton 3/Calidad"""
+        self.idact = 1
+        self.voldb = True
         if self.estado != "volumen":
             self.estado = "volumen"
             self.BtnsBal(False,True,True)
@@ -332,12 +344,16 @@ class Panel1(wx.Panel):
             self.unidades_peso.up()
             self.uni = self.unidades_peso.vector[0]
             wx.PostEvent(self, AcquireEvent(str(self.peso)))
+        elif self.estado=="volumen":
+            self.unidades_vol.up()
+            self.uni_vol = self.unidades_vol.vector[0]
         evt.Skip()
         
     def OnTara(self,evt):
         """Acción al presionar botón Tara"""
         self.tara = int(self.peso)
         wx.PostEvent(self, AcquireEvent(str(self.peso)))
+
         evt.Skip()
         
     def OnAceptar(self,evt):
@@ -348,6 +364,10 @@ class Panel1(wx.Panel):
                     self.muestra = self.valoractual
                     self.coloque=True
                     self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
+        elif self.estado == "volumen":
+            if self.voldb == True:
+                self.voldb = False
+                self.volaceptado = True
         evt.Skip()
         
     def OnDown(self,evt):
