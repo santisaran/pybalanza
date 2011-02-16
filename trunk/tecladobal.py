@@ -245,7 +245,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         if self.uni=="lb":
-            peso=int((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453.5923"))*1000)
+            peso=round(dec((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453592.3"))*1000),3)
         elif self.uni=="kg":
             peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
         else:
@@ -254,7 +254,7 @@ class Panel1(wx.Panel):
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
             
-            self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
+            self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
         
         if self.estado == "contador":
             if not self.coloque:
@@ -269,7 +269,12 @@ class Panel1(wx.Panel):
         elif self.estado == "volumen":
             print peso,self.tara
             if self.volaceptado:
+                if self.uni_vol == "in3":
+                    peso = round(dec(peso)/dec("16.387064"),2)
+                if self.uni_vol == "dm3":
+                    peso = dec(int(peso))/1000
                 self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
+            
             else:
                 self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
