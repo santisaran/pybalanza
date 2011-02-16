@@ -97,6 +97,7 @@ class Panel1(wx.Panel):
         self.t_bal = []
         #tabla de valores de muestras
         self.t_muestras = []
+        self.t_vol = []
         self.idact = "0"
         
         self.estados= ("balanza","contador","calidad","volumen","densidad")
@@ -245,7 +246,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         if self.uni=="lb":
-            peso=round(dec((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453592.3"))*1000),3)
+            peso=round(dec((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453592.37"))*1000),3)
         elif self.uni=="kg":
             peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
         else:
@@ -267,7 +268,6 @@ class Panel1(wx.Panel):
                 self.cantidad = int(peso)/int(self.muestra)
                 self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
         elif self.estado == "volumen":
-            print peso,self.tara
             if self.volaceptado:
                 if self.uni_vol == "in3":
                     peso = round(dec(peso)/dec("16.387064"),2)
@@ -398,6 +398,9 @@ class Panel1(wx.Panel):
         elif self.estado == "contador":
             valor=str(self.cantidad)
             self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+        elif self.estado == "volumen":
+            if self.volaceptado:
+                self.t_vol.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnVerTabla(self,evt):
@@ -409,6 +412,10 @@ class Panel1(wx.Panel):
         if self.estado == "contador":
             frame = list_report.ListaFrame(self.t_muestras,["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"])
             frame.Show()
+        elif self.estado == "volumen":
+            if self.volaceptado:
+                frame = list_report.ListaFrame(self.t_vol,["ID","Volumen","Timestamp"])
+                frame.Show()
         evt.Skip()
     
     def OnVerGrafico(self,evt):
