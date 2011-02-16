@@ -74,8 +74,17 @@ class LineChart(wx.Window):
         font =  dc.GetFont()
         font.SetPointSize(8)
         dc.SetFont(font)
+        
+        #Eje X
         dc.DrawLine(1, 1, self.ancho-30, 1)
+        dc.DrawLine(self.ancho-30,1,self.ancho-35,-4)
+        dc.DrawLine(self.ancho-30,1,self.ancho-35,+3)
+        
+        #Eje y
         dc.DrawLine(1, 1, 1, self.alto-20)
+        dc.DrawLine(1, self.alto-20, -4, self.alto-25)
+        dc.DrawLine(1, self.alto-20, 5, self.alto-25)
+        
         alto = self.alto-50
         minimo = alto*0.1
         maximo = alto*0.9
