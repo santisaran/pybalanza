@@ -112,7 +112,7 @@ class Panel1(wx.Panel):
                 #~ a.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
         self.pantalla = wx.TextCtrl( self, wx.ID_ANY, u"Peso: 0000 gr", pos=(72,95),size=(272,80), style=0|wx.TE_MULTILINE )
-        self.pantalla.SetFont( wx.Font( 20, 70, 90, 90, False, wx.EmptyString ) )
+        self.pantalla.SetFont( wx.Font( 18, 70, 90, 90, False, wx.EmptyString ) )
         
         #--------------------------------------------------------------#
         #-------------------    BOTONES     ---------------------------#
@@ -225,7 +225,6 @@ class Panel1(wx.Panel):
         self.alive = True
         self.thread = ThreadLector(0, self)
         self.thread.start()
-        self.tara = 0
         TIMER_ID = 100
         self.timer = wx.Timer(self,TIMER_ID)  # message will be sent to the panel
         self.timer.Start(100,True)  # x100 milliseconds
@@ -251,9 +250,10 @@ class Panel1(wx.Panel):
             peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
+        self.peso = evt.data
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
-            self.peso = evt.data
+            
             self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni)
         
         if self.estado == "contador":
@@ -267,10 +267,11 @@ class Panel1(wx.Panel):
                 self.cantidad = int(peso)/int(self.muestra)
                 self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
         elif self.estado == "volumen":
+            print peso,self.tara
             if self.volaceptado:
                 self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
             else:
-                self.pantalla.SetFont( wx.Font( 18, 70, 90, 90, False, wx.EmptyString ) )
+                self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
             
         self.valoractual = str(peso)
@@ -328,7 +329,7 @@ class Panel1(wx.Panel):
         self.voldb = True
         if self.estado != "volumen":
             self.estado = "volumen"
-            self.BtnsBal(False,True,True)
+            self.BtnsBal(True,True,False)
         evt.Skip()
         
     def OnDensidad(self,evt):
@@ -352,8 +353,8 @@ class Panel1(wx.Panel):
     def OnTara(self,evt):
         """Acción al presionar botón Tara"""
         self.tara = int(self.peso)
+        print self.peso
         wx.PostEvent(self, AcquireEvent(str(self.peso)))
-
         evt.Skip()
         
     def OnAceptar(self,evt):
@@ -427,9 +428,9 @@ class Panel1(wx.Panel):
         global contador
         if contador == 10:
             contador = 0 
-            peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
-            #wx.PostEvent(self, AcquireEvent(str(data[1])))
-            wx.PostEvent(self,AcquireEvent(str(peso)))
+            #peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
+            wx.PostEvent(self, AcquireEvent(str(data[1])))
+            #wx.PostEvent(self,AcquireEvent(str(peso)))
         contador+=1
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
@@ -454,15 +455,9 @@ class ThreadLector(threading.Thread):
         
         if sys.platform=="win32":
             from pywinusb import hid
-            #filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
-            filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
+            filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+            #filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
             balanza = filtro.get_devices()
-            if balanza:
-                print "existe"
-            else:
-                print "no está enchufado"
-                return
-            
             balanza = balanza[0]
             contador=0
             try:
@@ -508,7 +503,13 @@ app = wx.App(0)
 # create a window/frame instance, no parent, -1 is default ID
 fw = 756
 fh = 484
-frame1 = wx.Frame(None, -1, "Balanza", size=(fw, fh))
+if sys.platform == "win32":
+    fwadic = 8
+    fhadic = 28
+else:
+    fwadic = 0
+    fhadic = 0
+frame1 = wx.Frame(None, -1, "Balanza", size=(fw+8, fh+28))
 # create a panel class instance
 panel1 = Panel1(frame1, -1, fw, fh, tile_file)
 frame1.Show(True)
