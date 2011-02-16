@@ -6,11 +6,11 @@ _ = gettext.gettext
 wildcard = "Texto Separado por comas (*.cvs)|*.cvs|"     \
            "All files (*.*)|*.*"
 
-data=[["0","1002","20110212121200"],["1","1002","20110212121201"],["2","1002","20110212121202"],
-    ["3","1002","20110212121203"],["4","1002","20110212121204"]]
-columnas = ["ID","Peso","TimeStamp"]
+data=[["0","1002","20110212121200"],["1","1003","20110212121201"],["2","1004","20110212121202"],
+    ["3","1005","20110212121203"],["4","2002","20110212121204"]]
+colum = ["ID","Peso","TimeStamp"]
 class ListaFrame(wx.Frame):
-    def __init__(self,datos,columnas=columnas):
+    def __init__(self,datos,columnas=colum):
         wx.Frame.__init__(self, None, -1,
                           "wx.ListCtrl in wx.LC_REPORT mode",
                           size=(600,400), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
@@ -32,6 +32,8 @@ class ListaFrame(wx.Frame):
         self.Layout()
         
         self.Centre( wx.BOTH )
+        if self.columnas[1] == "Volumen":
+			m_choice1Choices = [ "cm3", "dm3", "in3"]
         m_choice1Choices = [ "gr", "lb", "kg"]
         self.m_choice1 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
         self.m_choice1.SetSelection( 0 )
@@ -56,8 +58,9 @@ class ListaFrame(wx.Frame):
         self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
         self.m_choice1.Bind( wx.EVT_CHOICE, self.OnChoiceUnidad )
     
-    def OnPoblar(self,columnas=columnas):
+    def OnPoblar(self,columnas=colum):
         # Add some columns
+        self.columnas = columnas
         self.lista.ClearAll()
         for col, text in enumerate(columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
             self.lista.InsertColumn(col, text)
@@ -79,9 +82,9 @@ class ListaFrame(wx.Frame):
         unidad = self.m_choice1.GetStringSelection()
         for n,i in enumerate(self.dataorig):
             if unidad=="lb":
-                peso=str(int((dec(i[1]))/dec("453.5923")*1000))
+                peso=str(round(dec((dec(i[1]))/dec("453592.37")*1000),3))
             elif unidad=="kg":
-                peso=str(round((dec(i[1]))/dec("1000"),3))
+                peso=str(round((dec(i[1]))/dec("1000"),4))
             else:
                 peso= str(int(dec(i[1])))
             self.data[n][1] = peso
@@ -161,7 +164,7 @@ class ListaFrame(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    frame = ListaFrame(data,columnas)
+    frame = ListaFrame(data,colum)
     frame.Show()
     app.MainLoop()
     
