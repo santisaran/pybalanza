@@ -1,6 +1,7 @@
 import wx
 import os, sys, random
 import gettext
+from decimal import Decimal as dec
 _ = gettext.gettext
 wildcard = "Texto Separado por comas (*.cvs)|*.cvs|"     \
            "All files (*.*)|*.*"
@@ -17,9 +18,10 @@ class ListaFrame(wx.Frame):
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         self.lista = wx.ListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT|wx.VSCROLL)
         bSizer1.Add(self.lista, 1, wx.ALL|wx.EXPAND, 5)
-			
+        self.columnas = columnas
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        self.data = datos
+        self.dataorig = [list(i) for i in datos]
+        self.data = 	[list(i) for i in datos]
         self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, "Unidad")
         self.m_staticText1.Wrap( -1 )
         bSizer2.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -54,8 +56,9 @@ class ListaFrame(wx.Frame):
         self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
         self.m_choice1.Bind( wx.EVT_CHOICE, self.OnChoiceUnidad )
     
-    def OnPoblar(self,columnas):
+    def OnPoblar(self,columnas=columnas):
         # Add some columns
+        self.lista.ClearAll()
         for col, text in enumerate(columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
             self.lista.InsertColumn(col, text)
         # add the rows
@@ -74,10 +77,15 @@ class ListaFrame(wx.Frame):
     def OnChoiceUnidad(self,evt):
         """Cambia de unidad"""
         unidad = self.m_choice1.GetStringSelection()
-        
-        
-
-
+        for n,i in enumerate(self.dataorig):
+            if unidad=="lb":
+                peso=str(int((dec(i[1]))/dec("453.5923")*1000))
+            elif unidad=="kg":
+                peso=str(round((dec(i[1]))/dec("1000"),3))
+            else:
+                peso= str(int(dec(i[1])))
+            self.data[n][1] = peso
+        self.OnPoblar()
     def OnMenuAbrir(self, evt):
         #self.log.WriteText("CWD: %s\n" % os.getcwd())
         """ Crea el dialogo para abrir un archivo. Se fuerza el directorio actual."""
