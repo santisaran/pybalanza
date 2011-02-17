@@ -514,10 +514,9 @@ class Panel1(wx.Panel):
         global contador
         if contador == 10:
             contador = 0 
-            if BALANZA:
-                wx.PostEvent(self,AcquireEvent(str(peso)))
-            else:
-                wx.PostEvent(self, AcquireEvent(str(data[1])))
+            #if BALANZA:
+            #wx.PostEvent(self,AcquireEvent(str(peso)))
+            wx.PostEvent(self, AcquireEvent(str(data[1])))
         contador+=1
         
     #------------------------------------------------------------------#
