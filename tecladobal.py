@@ -261,6 +261,7 @@ class Panel1(wx.Panel):
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
+        self.peso = evt.data
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
             self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
@@ -268,7 +269,7 @@ class Panel1(wx.Panel):
         elif self.estado == "contador":
             if not self.coloque:
                 #para almacenar en tabla guardo directo el valor de la balanza.
-                self.peso = evt.data
+                self.peso = self.valoractual
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
                 #variable con el valor actual en pantalla.
                 

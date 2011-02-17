@@ -13,15 +13,15 @@ class prosdata():
         self.data=datos
         
         #valor máximo
-        self.maxim = max(datos)
+        self.maxim = int(max(datos))
         #valor minimo
-        self.mini = min(datos)
+        self.mini = int(min(datos))
         #tamaño cuantas piezas fueron pesadas
-        self.size = len(datos)
+        self.size = int(len(datos))
         #diferencia entre minima y máxima para autoescalar el gráfico
-        self.dif = self.maxim-self.mini
+        self.dif = int(self.maxim)-int(self.mini)
         #promedio 
-        self.prom = float(sum(self.data))/len(self.data)
+        self.prom = float(sum(self.data))/(len(datos))
         #desvío medio.
         self.desmed = float(sum([abs(i-self.prom) for i in self.data]))/self.size
         
@@ -117,10 +117,12 @@ class LineChart(wx.Window):
         dif = maximo - minimo
         for i in range(0,self.diven+1,1):
             dc.DrawLine(2, i*dif/self.diven+minimo, ancho, i*dif/self.diven+minimo)
-
-        for i in range(int(round(ancho/len(data)))+1, ancho,int(round(ancho/len(data)))):
-            dc.DrawLine(i, 1, i, alto)
-
+        
+        paso = int(round(float(self.ancho-30)/len(data)))
+        if paso!=0:
+            for i in range(int(round((ancho)/len(data)))+1, ancho,paso):
+                dc.DrawLine(i, 1, i, alto)
+        
     def DrawTitle(self, dc):
         font =  dc.GetFont()
         font.SetWeight(wx.FONTWEIGHT_BOLD)
@@ -134,7 +136,7 @@ class LineChart(wx.Window):
         alto = self.alto-50
         minimo = alto*0.1
         maximo = alto*0.9
-        ancho = self.ancho-60
+        ancho = self.ancho-30
         dif = int(maximo - minimo)
         
         #acondicionamiento de los datos para la escala actual.
@@ -173,7 +175,7 @@ class VerGrafico(wx.Frame):
         wx.Frame.__init__(self, parent, id, title, size=(700, 550))
         self.width,self.height = self.GetSize()
 
-        self.tabla = [i[1] for i in tabla]
+        self.tabla = [int(i[1]) for i in tabla]
         panel = wx.Panel(self, -1)
         panel.SetBackgroundColour('WHITE')
         hbox = wx.BoxSizer(wx.HORIZONTAL)
