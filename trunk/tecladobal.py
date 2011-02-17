@@ -476,7 +476,7 @@ class Panel1(wx.Panel):
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
-            frame = list_report.ListaFrame(self.t_bal,"balanza",title="Lista de Muestras")
+            frame = list_report.ListaFrame(self,self.t_bal,"balanza",title="Lista de Muestras")
             frame.Show()
         if self.estado == "contador":
             frame = list_report.ListaFrame(self.t_muestras,"contador",["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"],"lista de muestras")
@@ -516,10 +516,18 @@ class Panel1(wx.Panel):
             peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
             wx.PostEvent(self, AcquireEvent(str(peso)))
         contador+=1
-        
+    
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
+    
+    def BorrarListas(self,evt):
+        """borra las listas de valores que existan, es llamada desde list_report"""
+        self.t_bal = []
+        self.t_muestras = []
+        self.t_vol = []
+        self.t_den = []
+
 class ThreadLector(threading.Thread):
     """
     Thread que se queda escuchando datos en el puerto de conexión.

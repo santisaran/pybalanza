@@ -10,8 +10,8 @@ data=[["0","1002","20110212121200"],["1","1003","20110212121201"],["2","1004","2
     ["3","1005","20110212121203"],["4","2002","20110212121204"]]
 colum = ["ID","Peso","TimeStamp"]
 class ListaFrame(wx.Frame):
-    def __init__(self,datos,funcion,columnas=colum,title="Lista"):
-        wx.Frame.__init__(self, None, -1,
+    def __init__(self,parent,datos,funcion,columnas=colum,title="Lista"):
+        wx.Frame.__init__(self, parent, -1,
                           title,
                           size=(600,400), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
         #self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
@@ -20,18 +20,16 @@ class ListaFrame(wx.Frame):
         bSizer1.Add(self.lista, 1, wx.ALL|wx.EXPAND, 5)
         self.columnas = columnas
         self.funcion = funcion
+        self.win = parent
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
         self.dataorig = [list(i) for i in datos]
         self.data = 	[list(i) for i in datos]
         self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, "Unidad")
         self.m_staticText1.Wrap( -1 )
         bSizer2.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
-        
         bSizer1.Add( bSizer2, 0, wx.EXPAND, 0 )
-
         self.SetSizer( bSizer1 )
         self.Layout()
-        
         self.Centre( wx.BOTH )
         print self.funcion
         if self.funcion == "volumen":
@@ -43,7 +41,14 @@ class ListaFrame(wx.Frame):
         self.m_choice1 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
         self.m_choice1.SetSelection( 0 )
         bSizer2.Add( self.m_choice1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 0 )
-
+        
+        bSizer2.AddSpacer( ( 0, 0), 1, wx.EXPAND, 5 )       
+        
+        self.btn_borrar = wx.Button( self, wx.ID_ANY, u"Borrar Lista", wx.DefaultPosition, wx.DefaultSize, 0 )
+        bSizer2.Add( self.btn_borrar, 0, wx.ALL, 5 )
+        
+        self.btn_guardar = wx.Button( self, wx.ID_ANY, u"Guardar Lista", wx.DefaultPosition, wx.DefaultSize, 0 )
+        bSizer2.Add( self.btn_guardar, 0, wx.ALL, 5 )
 
         self.m_menubar1 = wx.MenuBar( 0 )
         self.m_menu1 = wx.Menu()
@@ -61,7 +66,14 @@ class ListaFrame(wx.Frame):
         self.Bind( wx.EVT_MENU, self.OnMenuAbrir, id = self.m_abrir.GetId() )
         self.Bind( wx.EVT_MENU, self.OnMenuGuardar, id = self.m_guardar.GetId() )
         self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
+        self.Bind( wx.EVT_BUTTON, self.OnBorrarListas, id = self.btn_borrar.GetId() )
         self.m_choice1.Bind( wx.EVT_CHOICE, self.OnChoiceUnidad )
+    
+    def OnBorrarListas(self,evt):
+        self.win.BorrarListas(evt)
+        self.dataorig = []
+        self.data = []
+        self.OnPoblar()
     
     def OnPoblar(self,columnas=colum):
         # Add some columns
