@@ -260,12 +260,12 @@ class Panel1(wx.Panel):
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.peso = evt.data
+        self.valoractual = str(peso)
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
-            
             self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
         
-        if self.estado == "contador":
+        elif self.estado == "contador":
             if not self.coloque:
                 #para almacenar en tabla guardo directo el valor de la balanza.
                 self.peso = evt.data
@@ -306,7 +306,6 @@ class Panel1(wx.Panel):
                     self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
             else:
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir\n densidad y acepte")
-            
         self.valoractual = str(peso)
               
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
@@ -478,18 +477,18 @@ class Panel1(wx.Panel):
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
-            frame = list_report.ListaFrame(self.t_bal)
+            frame = list_report.ListaFrame(self.t_bal,"balanza",title="Lista de Muestras")
             frame.Show()
         if self.estado == "contador":
-            frame = list_report.ListaFrame(self.t_muestras,["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"])
+            frame = list_report.ListaFrame(self.t_muestras,"contador",["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"],"lista de muestras")
             frame.Show()
         elif self.estado == "volumen":
             if self.volaceptado:
-                frame = list_report.ListaFrame(self.t_vol,["ID","Volumen","Timestamp"])
+                frame = list_report.ListaFrame(self.t_vol,"volumen",["ID","Volumen","Timestamp"],"Lista de Volúmenes")
                 frame.Show()
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
-                frame = list_report.ListaFrame(self.t_den,["ID","Densidad","Timestamp"])
+                frame = list_report.ListaFrame(self.t_den,"densidad",["ID","Densidad","Timestamp"],"Lista de densidades")
                 frame.Show()
         evt.Skip()
     
