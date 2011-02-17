@@ -4,7 +4,7 @@
 import time
 import wx
 import random
-data = [random.randint(950,1050) for i in range(20)]
+data = ["0",[random.randint(950,1050) for i in range(20)]]
 
 #muestras = ('10', '20', '30')
 class prosdata():
@@ -25,10 +25,10 @@ class prosdata():
         self.desmed = float(sum([abs(i-self.prom) for i in self.data]))/self.size
         
 class LineChart(wx.Window): 
-    def __init__(self, parent):
+    def __init__(self, parent,tabla=data):
         wx.Window.__init__(self, parent)
         self.SetBackgroundColour('WHITE')
-        self.datos = prosdata(data)
+        self.datos = prosdata(tabla)
         self.InitBuffer()        
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
@@ -151,21 +151,21 @@ class LineChart(wx.Window):
             ancho,(self.datos.prom-self.datos.mini-self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
 
 
-class LineChartExample(wx.Frame):
-    def __init__(self, parent, id, title):
+class VerGrafico(wx.Frame):
+    def __init__(self, parent, id, title,tabla=data):
         wx.Frame.__init__(self, parent, id, title, size=(500, 300))
         self.width,self.height = self.GetSize()
+        self.tabla = [int(i[1]) for i in tabla]
         panel = wx.Panel(self, -1)
         panel.SetBackgroundColour('WHITE')
         hbox = wx.BoxSizer(wx.HORIZONTAL)
-        linechart = LineChart(panel)
+        linechart = LineChart(panel,self.tabla)
         hbox.Add(linechart, 1, wx.EXPAND | wx.ALL, 15)
         panel.SetSizer(hbox)
-
         self.Centre()
         self.Show(True)
 
 if __name__ == '__main__':
     app = wx.App(0)
-    LineChartExample(None, -1, 'Valores Medidos')
+    VerGrafico(None, -1, 'Valores Medidos')
     app.MainLoop()

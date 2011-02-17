@@ -95,13 +95,15 @@ class Panel1(wx.Panel):
         self.tara = 0
         self.peso = None
         #tabla de valores de balanza
-        self.t_bal = []
+        self.l_bal = []
         #tabla de valores de muestras en función balanza
-        self.t_muestras = []
+        self.l_muestras = []
         #lista de volúmenes para tabla
-        self.t_vol = []
+        self.l_vol = []
         #lista de densidades para tabla
-        self.t_den = []
+        self.l_den = []
+        #lista de calidad
+        self.l_calidad= []
         self.idact = "0"
         
         self.estados= ("balanza","contador","calidad","volumen","densidad")
@@ -258,8 +260,7 @@ class Panel1(wx.Panel):
             peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
-        self.peso = evt.data
-        self.valoractual = str(peso)
+        self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
         if self.estado == "balanza":
             #para almacenar en tabla guardo directo el valor de la balanza.
             self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
@@ -272,7 +273,7 @@ class Panel1(wx.Panel):
                 #variable con el valor actual en pantalla.
                 
             else:
-                self.cantidad = int(peso)/int(self.muestra)
+                self.cantidad = int(self.valoractual)/int(self.muestra)
                 self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
         elif self.estado == "volumen":
             if self.volaceptado:
@@ -305,7 +306,8 @@ class Panel1(wx.Panel):
                     self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
             else:
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir\n densidad y acepte")
-        self.valoractual = str(peso)
+        elif self.estado == "calidad":
+            self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nMuestra = " + str(self.idact)+"\nColoque muestras")
               
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
         """ Muestra/oculta los botones de la funcion pesar """
@@ -358,6 +360,7 @@ class Panel1(wx.Panel):
     def OnCalidad(self,evt):
         """Acción al presionar boton 3/Calidad"""
         if self.estado != "calidad":
+            self.idact=0
             self.estado = "calidad"
             self.voldb = False
             self.volaceptado = False
@@ -393,7 +396,7 @@ class Panel1(wx.Panel):
         
     def OnUnidad(self,evt):
         """Acción al presionar unidad"""
-        if self.estado=="balanza":
+        if (self.estado=="balanza") or (self.estado=="calidad") or (self.estado=="contador"):
             self.unidades_peso.up()
             self.uni = self.unidades_peso.vector[0]
             wx.PostEvent(self, AcquireEvent(str(self.peso)))
@@ -408,7 +411,6 @@ class Panel1(wx.Panel):
     def OnTara(self,evt):
         """Acción al presionar botón Tara"""
         self.tara = int(self.peso)
-        print self.peso
         wx.PostEvent(self, AcquireEvent(str(self.peso)))
         evt.Skip()
         
@@ -416,8 +418,8 @@ class Panel1(wx.Panel):
         """Acción al presionar botón Aceptar"""
         if self.estado == "contador":
             if not self.coloque:
-                if int(self.valoractual)>0:
-                    self.muestra = self.valoractual
+                if dec(self.valoractual)>0:
+                    self.muestra = int(self.valoractual)
                     self.coloque=True
                     self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque conjunto") 
         elif self.estado == "volumen":
@@ -434,6 +436,9 @@ class Panel1(wx.Panel):
                 self.pesoden=int(self.valoractual)
                 self.den_db = True
                 self.den_acep = False
+        elif self.estado == "calidad":
+            self.idact = str(int(self.idact)+1)
+            self.l_calidad.append([str(self.idact),str(self.valoractual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnDown(self,evt):
@@ -451,6 +456,7 @@ class Panel1(wx.Panel):
         self.den_acep = False
         self.den_db = False
         self.OnBalanza(evt)
+        self.idact=0
         evt.Skip()
 
     def OnGTabla(self,evt):
@@ -458,42 +464,45 @@ class Panel1(wx.Panel):
         if self.estado=="balanza":
             self.idact =str(int(self.idact)+1)  
             valor=self.peso
-            self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_bal.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
-            self.idact =str(int(self.idact)+1)
-            valor=str(self.cantidad)
-            self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            if self.coloque:
+                self.idact =str(int(self.idact)+1)
+                self.l_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "volumen":
             if self.volaceptado:
                 self.idact =str(int(self.idact)+1)
-                self.t_vol.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_vol.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
                 self.idact =str(int(self.idact)+1)
-                self.t_den.append([str(self.idact),str(self.densidadactual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_den.append([str(self.idact),str(self.densidadactual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
-            frame = list_report.ListaFrame(self,self.t_bal,"balanza",title="Lista de Muestras")
+            frame = list_report.ListaFrame(self,self.l_bal,"balanza",title="Lista de Muestras")
             frame.Show()
-        if self.estado == "contador":
-            frame = list_report.ListaFrame(self.t_muestras,"contador",["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"],"lista de muestras")
+        elif self.estado == "contador":
+            frame = list_report.ListaFrame(self,self.l_muestras,"contador",["ID","Peso x Unidad","Peso del Conjunto","Unidades","Timestamp"],"lista de muestras")
             frame.Show()
         elif self.estado == "volumen":
             if self.volaceptado:
-                frame = list_report.ListaFrame(self.t_vol,"volumen",["ID","Volumen","Timestamp"],"Lista de Volúmenes")
+                frame = list_report.ListaFrame(self,self.l_vol,"volumen",["ID","Volumen","Timestamp"],"Lista de Volúmenes")
                 frame.Show()
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
-                frame = list_report.ListaFrame(self.t_den,"densidad",["ID","Densidad","Timestamp"],"Lista de densidades")
+                frame = list_report.ListaFrame(self,self.l_den,"densidad",["ID","Densidad","Timestamp"],"Lista de densidades")
                 frame.Show()
+        elif self.estado == "calidad":
+            frame = list_report.ListaFrame(self,self.l_calidad,"calidad",["ID","Peso","Timestamp"],"Lista Calidad")
+            frame.Show()
         evt.Skip()
     
     def OnVerGrafico(self,evt):
         """Acción al presionar boton Ver Gráfico"""
-        grafico.LineChartExample(None, -1, 'Puntos Medidos')
+        grafico.VerGrafico(None, -1, 'Puntos Medidos',self.l_calidad)
         evt.Skip()
     
     def on_paint(self, event=None):
@@ -523,10 +532,12 @@ class Panel1(wx.Panel):
     
     def BorrarListas(self,evt):
         """borra las listas de valores que existan, es llamada desde list_report"""
-        self.t_bal = []
-        self.t_muestras = []
-        self.t_vol = []
-        self.t_den = []
+        self.l_bal = []
+        self.l_muestras = []
+        self.l_vol = []
+        self.l_den = []
+        self.l_calidad = []
+        self.idact = 0
 
 class ThreadLector(threading.Thread):
     """

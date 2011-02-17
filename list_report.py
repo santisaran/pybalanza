@@ -31,10 +31,9 @@ class ListaFrame(wx.Frame):
         self.SetSizer( bSizer1 )
         self.Layout()
         self.Centre( wx.BOTH )
-        print self.funcion
         if self.funcion == "volumen":
 			m_choice1Choices = [ "cm3", "dm3", "in3"]
-        elif (self.funcion == "balanza")or(self.funcion=="contador"):
+        elif (self.funcion == "balanza")or(self.funcion=="contador")or(self.funcion=="calidad"):
             m_choice1Choices = [ "gr", "lb", "kg"]
         elif self.funcion == "densidad":
             m_choice1Choices = [ "g/cm3", "lb/in3"]
@@ -61,13 +60,15 @@ class ListaFrame(wx.Frame):
         self.m_cerrar = wx.MenuItem( self.m_menu1, wx.ID_ANY, _("Cerrar"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu1.AppendItem( self.m_cerrar )
         self.m_menubar1.Append( self.m_menu1, _("Lista") ) 
-        self.OnPoblar(columnas)
         self.SetMenuBar( self.m_menubar1 )
         self.Bind( wx.EVT_MENU, self.OnMenuAbrir, id = self.m_abrir.GetId() )
         self.Bind( wx.EVT_MENU, self.OnMenuGuardar, id = self.m_guardar.GetId() )
         self.Bind( wx.EVT_MENU, self.OnMenuCerrar, id = self.m_cerrar.GetId() )
         self.Bind( wx.EVT_BUTTON, self.OnBorrarListas, id = self.btn_borrar.GetId() )
+        self.Bind( wx.EVT_BUTTON, self.OnMenuGuardar, id = self.btn_guardar.GetId() )
         self.m_choice1.Bind( wx.EVT_CHOICE, self.OnChoiceUnidad )
+        
+        self.OnPoblar()
     
     def OnBorrarListas(self,evt):
         self.win.BorrarListas(evt)
@@ -75,11 +76,10 @@ class ListaFrame(wx.Frame):
         self.data = []
         self.OnPoblar()
     
-    def OnPoblar(self,columnas=colum):
+    def OnPoblar(self):
         # Add some columns
-        self.columnas = columnas
         self.lista.ClearAll()
-        for col, text in enumerate(columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
+        for col, text in enumerate(self.columnas):#[[0,"ID"],[1,"peso"],[2,"timestamp"]]:
             self.lista.InsertColumn(col, text)
         # add the rows
         for item in self.data:
@@ -98,7 +98,7 @@ class ListaFrame(wx.Frame):
         """Cambia de unidad"""
         unidad = self.m_choice1.GetStringSelection()
         for n,i in enumerate(self.dataorig):
-            if self.funcion=="balanza":
+            if (self.funcion=="balanza") or (self.funcion=="calidad"):
                 if unidad=="lb":
                     peso=str(round(dec((dec(i[1]))/dec("453592.37")*1000),3))
                 elif unidad=="kg":
@@ -120,6 +120,23 @@ class ListaFrame(wx.Frame):
                 elif unidad=="g/cm3":
                     peso=int(dec(i[1]))
                 self.data[n][1] = str(peso)
+            elif self.funcion == "contador":
+
+                if unidad=="lb":
+                    peso=str(round(dec(i[1])/dec("453592.37")*1000,3))
+                elif unidad=="kg":
+                    peso=str(round((dec(i[1]))/dec("1000"),4))
+                else:
+                    peso= str(int(dec(i[1])))
+                self.data[n][1] = peso
+                if unidad=="lb":
+                    peso=str(round(dec((dec(i[2]))/dec("453592.37")*1000),3))
+                elif unidad=="kg":
+                    peso=str(round((dec(i[2]))/dec("1000"),4))
+                else:
+                    peso= str(int(dec(i[2])))
+                self.data[n][2] = peso
+                
             self.OnPoblar()
     def OnMenuAbrir(self, evt):
         #self.log.WriteText("CWD: %s\n" % os.getcwd())
@@ -196,7 +213,7 @@ class ListaFrame(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    frame = ListaFrame("densidad",data,colum)
+    frame = ListaFrame(wx.Window(),data,"densidad",colum)
     frame.Show()
     app.MainLoop()
     
