@@ -19,8 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = True
-
+BALANZA = False
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
@@ -514,9 +513,8 @@ class Panel1(wx.Panel):
         global contador
         if contador == 10:
             contador = 0 
-            #if BALANZA:
-            #wx.PostEvent(self,AcquireEvent(str(peso)))
-            wx.PostEvent(self, AcquireEvent(str(data[1])))
+            peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
+            wx.PostEvent(self, AcquireEvent(str(peso)))
         contador+=1
         
     #------------------------------------------------------------------#
@@ -556,6 +554,7 @@ class ThreadLector(threading.Thread):
                     time.sleep(1)
             finally:
                 balanza.close()
+                
         elif sys.platform == "linux2":
             import usb.core
             import usb.util
