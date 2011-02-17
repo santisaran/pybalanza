@@ -23,7 +23,7 @@ class ListaFrame(wx.Frame):
         self.win = parent
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
         self.dataorig = [list(i) for i in datos]
-        self.data = 	[list(i) for i in datos]
+        self.data =     [list(i) for i in datos]
         self.m_staticText1 = wx.StaticText( self, wx.ID_ANY, "Unidad")
         self.m_staticText1.Wrap( -1 )
         bSizer2.Add( self.m_staticText1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
@@ -32,7 +32,7 @@ class ListaFrame(wx.Frame):
         self.Layout()
         self.Centre( wx.BOTH )
         if self.funcion == "volumen":
-			m_choice1Choices = [ "cm3", "dm3", "in3"]
+            m_choice1Choices = [ "cm3", "dm3", "in3"]
         elif (self.funcion == "balanza")or(self.funcion=="contador")or(self.funcion=="calidad"):
             m_choice1Choices = [ "gr", "lb", "kg"]
         elif self.funcion == "densidad":
@@ -181,28 +181,14 @@ class ListaFrame(wx.Frame):
         # process the data.
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            #self.log.WriteText('You selected "%s"' % path)
-
-            # Normally, at this point you would save your data using the file and path
-            # data that the user provided to you, but since we didn't actually start
-            # with any data to work with, that would be difficult.
-            # 
-            # The code to do so would be similar to this, assuming 'data' contains
-            # the data you want to save:
-            #
-            # fp = file(path, 'w') # Create file anew
-            # fp.write(data)
-            # fp.close()
-            #
-            # You might want to add some error checking :-)
-            #
- 
-        # Note that the current working dir didn't change. This is good since
-        # that's the way we set it up.
-        #self.log.WriteText("CWD: %s\n" % os.getcwd())
-
-        # Destroy the dialog. Don't do this until you are done with it!
-        # BAD things can happen otherwise!
+            import csv
+            archivo = open(path, 'wb')
+            csvWriter = csv.writer(archivo, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            csvWriter.writerow((self.funcion,))
+            csvWriter.writerow(self.columnas)
+            for i in self.dataorig:
+                csvWriter.writerow(i)
+            archivo.close()
         dlg.Destroy()
         
     def OnMenuCerrar(self,evt):
