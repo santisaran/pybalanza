@@ -547,7 +547,6 @@ class ThreadLector(threading.Thread):
                 filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
             else:
                 filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
-                
             balanza = filtro.get_devices()
             balanza = balanza[0]
             contador=0
