@@ -543,8 +543,11 @@ class ThreadLector(threading.Thread):
         
         if sys.platform=="win32":
             from pywinusb import hid
-            filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
-            #filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
+            if BALANZA:
+                filtro = hid.HidDeviceFilter(vendor_id=0x1414,product_id=0x2013)
+            else:
+                filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
+                
             balanza = filtro.get_devices()
             balanza = balanza[0]
             contador=0
