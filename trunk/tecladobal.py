@@ -88,7 +88,7 @@ class Panel1(wx.Panel):
         self.botones_press = [i[:-4]+"_press.png" for i in self.botones]
         self.unidades_peso = puntero([u"gr","kg","lb"])
         self.unidades_vol = puntero([u"cm3",u"dm3",u"in3"])
-        self.unidades_den = puntero(["gr","kg","lb"])
+        self.unidades_den = puntero(["g/cm3","lb/in3"])
         
         self.ptrpeso=0
         self.ptrvol=0
@@ -109,6 +109,7 @@ class Panel1(wx.Panel):
         self.unidad_den = self.unidades_den.vector[0]
         self.uni = "gr"
         self.uni_vol = "cm3"
+        self.uni_den = "g/cm3"
         #~ for i in posh:
             #~ for j in posv:
                 #~ a = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"btn1.png", wx.BITMAP_TYPE_ANY), pos=(i,j), style=0|wx.NO_BORDER )
@@ -284,15 +285,20 @@ class Panel1(wx.Panel):
         elif self.estado == "densidad":
             if self.den_db:
                 if self.den_acep:
+                    densidad = 0
                     try:
-                        mostrar = round(dec(self.pesoden)/dec(peso),3)
+                        mostrar = round(dec(self.pesoden)/dec(peso),1)
                     except:
-                        mostrar = "div por 0"
+                        mostrar = ""
                     if mostrar<0:
                         mostrar = ""
-                    print self.pesoden
-                    print peso
-                    self.pantalla.SetValue(u"Peso: " + str(mostrar) + " " + self.uni + "\nColoque material a medir densidad")
+                    elif mostrar!="":
+                        self.densidadactual=mostrar
+                        if self.uni_den == "lb/in3":
+                            densidad = round(dec(str(mostrar)) / dec("27.679905"),2)
+                        else:
+                            densidad = mostrar
+                    self.pantalla.SetValue(u"Peso: " + str(densidad) + " " + self.uni_den + "\nColoque material a medir densidad")
                 else:
                     self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
             else:
@@ -393,6 +399,9 @@ class Panel1(wx.Panel):
         elif self.estado=="volumen":
             self.unidades_vol.up()
             self.uni_vol = self.unidades_vol.vector[0]
+        elif self.estado=="densidad":
+            self.unidades_den.up()
+            self.uni_den = self.unidades_den.vector[0]
         evt.Skip()
         
     def OnTara(self,evt):
