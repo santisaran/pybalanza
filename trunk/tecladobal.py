@@ -19,7 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = True
+BALANZA = False
 
 #posiciones de los botones del teclado
 def posbtns(x,y):
@@ -97,9 +97,12 @@ class Panel1(wx.Panel):
         self.peso = None
         #tabla de valores de balanza
         self.t_bal = []
-        #tabla de valores de muestras
+        #tabla de valores de muestras en función balanza
         self.t_muestras = []
+        #lista de volúmenes para tabla
         self.t_vol = []
+        #lista de densidades para tabla
+        self.t_den = []
         self.idact = "0"
         
         self.estados= ("balanza","contador","calidad","volumen","densidad")
@@ -302,7 +305,7 @@ class Panel1(wx.Panel):
                 else:
                     self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
             else:
-                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir densidad\ny presione aceptar")
+                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir\n densidad y acepte")
             
         self.valoractual = str(peso)
               
@@ -459,17 +462,22 @@ class Panel1(wx.Panel):
             valor=self.peso
             self.t_bal.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
+            self.idact =str(int(self.idact)+1)
             valor=str(self.cantidad)
             self.t_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "volumen":
             if self.volaceptado:
+                self.idact =str(int(self.idact)+1)
                 self.t_vol.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+        elif self.estado == "densidad":
+            if self.den_db and self.den_acep:
+                self.idact =str(int(self.idact)+1)
+                self.t_den.append([str(self.idact),str(self.densidadactual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnVerTabla(self,evt):
         """Acción al presionar boton Ver Tabla"""
         if self.estado == "balanza":
-            print self.t_bal
             frame = list_report.ListaFrame(self.t_bal)
             frame.Show()
         if self.estado == "contador":
@@ -478,6 +486,10 @@ class Panel1(wx.Panel):
         elif self.estado == "volumen":
             if self.volaceptado:
                 frame = list_report.ListaFrame(self.t_vol,["ID","Volumen","Timestamp"])
+                frame.Show()
+        elif self.estado == "densidad":
+            if self.den_db and self.den_acep:
+                frame = list_report.ListaFrame(self.t_den,["ID","Densidad","Timestamp"])
                 frame.Show()
         evt.Skip()
     
