@@ -10,15 +10,16 @@ data=[["0","1002","20110212121200"],["1","1003","20110212121201"],["2","1004","2
     ["3","1005","20110212121203"],["4","2002","20110212121204"]]
 colum = ["ID","Peso","TimeStamp"]
 class ListaFrame(wx.Frame):
-    def __init__(self,datos,columnas=colum):
+    def __init__(self,datos,funcion,columnas=colum,title="Lista"):
         wx.Frame.__init__(self, None, -1,
-                          "wx.ListCtrl in wx.LC_REPORT mode",
+                          title,
                           size=(600,400), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
         #self.SetSizeHintsSz( wx.DefaultSize, wx.DefaultSize )
         bSizer1 = wx.BoxSizer(wx.VERTICAL)
         self.lista = wx.ListCtrl(self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT|wx.VSCROLL)
         bSizer1.Add(self.lista, 1, wx.ALL|wx.EXPAND, 5)
         self.columnas = columnas
+        self.funcion = funcion
         bSizer2 = wx.BoxSizer(wx.HORIZONTAL)
         self.dataorig = [list(i) for i in datos]
         self.data = 	[list(i) for i in datos]
@@ -32,9 +33,13 @@ class ListaFrame(wx.Frame):
         self.Layout()
         
         self.Centre( wx.BOTH )
-        if self.columnas[1] == "Volumen":
+        print self.funcion
+        if self.funcion == "volumen":
 			m_choice1Choices = [ "cm3", "dm3", "in3"]
-        m_choice1Choices = [ "gr", "lb", "kg"]
+        elif (self.funcion == "balanza")or(self.funcion=="contador"):
+            m_choice1Choices = [ "gr", "lb", "kg"]
+        elif self.funcion == "densidad":
+            m_choice1Choices = [ "g/cm3", "lb/in3"]
         self.m_choice1 = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_choice1Choices, 0 )
         self.m_choice1.SetSelection( 0 )
         bSizer2.Add( self.m_choice1, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 0 )
@@ -81,14 +86,29 @@ class ListaFrame(wx.Frame):
         """Cambia de unidad"""
         unidad = self.m_choice1.GetStringSelection()
         for n,i in enumerate(self.dataorig):
-            if unidad=="lb":
-                peso=str(round(dec((dec(i[1]))/dec("453592.37")*1000),3))
-            elif unidad=="kg":
-                peso=str(round((dec(i[1]))/dec("1000"),4))
-            else:
-                peso= str(int(dec(i[1])))
-            self.data[n][1] = peso
-        self.OnPoblar()
+            if self.funcion=="balanza":
+                if unidad=="lb":
+                    peso=str(round(dec((dec(i[1]))/dec("453592.37")*1000),3))
+                elif unidad=="kg":
+                    peso=str(round((dec(i[1]))/dec("1000"),4))
+                else:
+                    peso= str(int(dec(i[1])))
+                self.data[n][1] = peso
+            elif self.funcion =="volumen":
+                if unidad=="in3":
+                    peso=str(round(dec(i[1])/dec("16.387064"),2))
+                elif unidad=="dm3":
+                    peso=str(round((dec(i[1]))/dec("1000"),4))
+                else:
+                    peso= str(int(dec(i[1])))
+                self.data[n][1] = peso
+            elif self.funcion == "densidad":
+                if unidad=="lb/in3":
+                    peso=round(dec(i[1])/dec("27.679905"),2)
+                elif unidad=="g/cm3":
+                    peso=int(dec(i[1]))
+                self.data[n][1] = str(peso)
+            self.OnPoblar()
     def OnMenuAbrir(self, evt):
         #self.log.WriteText("CWD: %s\n" % os.getcwd())
         """ Crea el dialogo para abrir un archivo. Se fuerza el directorio actual."""
@@ -164,7 +184,7 @@ class ListaFrame(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.PySimpleApp()
-    frame = ListaFrame(data,colum)
+    frame = ListaFrame("densidad",data,colum)
     frame.Show()
     app.MainLoop()
     
