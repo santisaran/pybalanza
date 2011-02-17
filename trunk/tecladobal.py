@@ -19,7 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = True
+BALANZA = False
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
@@ -269,7 +269,6 @@ class Panel1(wx.Panel):
         elif self.estado == "contador":
             if not self.coloque:
                 #para almacenar en tabla guardo directo el valor de la balanza.
-                self.peso = self.valoractual
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
                 #variable con el valor actual en pantalla.
                 
@@ -522,9 +521,12 @@ class Panel1(wx.Panel):
     def sample_handler(self,data):
         global contador
         if contador == 10:
-            contador = 0 
-            peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
-            wx.PostEvent(self, AcquireEvent(str(peso)))
+            contador = 0
+            if BALANZA: 
+                peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
+                wx.PostEvent(self, AcquireEvent(str(peso)))
+            else:
+                wx.PostEvent(self, AcquireEvent(str(data[1])))
         contador+=1
     
     #------------------------------------------------------------------#

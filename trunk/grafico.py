@@ -118,9 +118,9 @@ class LineChart(wx.Window):
         for i in range(0,self.diven+1,1):
             dc.DrawLine(2, i*dif/self.diven+minimo, ancho, i*dif/self.diven+minimo)
         
-        paso = int(round(float(self.ancho-30)/len(data)))
+        paso = int(round((ancho)/len(data)))
         if paso!=0:
-            for i in range(int(round((ancho)/len(data)))+1, ancho,paso):
+            for i in range(int(round((ancho)/len(data))), ancho,paso):
                 dc.DrawLine(i, 1, i, alto)
         
     def DrawTitle(self, dc):
@@ -148,18 +148,18 @@ class LineChart(wx.Window):
         dc.SetPen(wx.Pen("Green",2,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3,ancho,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3)
         
-        font =  wx.Font(8, wx.DECORATIVE,wx.ITALIC, wx.NORMAL)
+        font =  wx.Font(8, wx.ROMAN,wx.NORMAL, wx.NORMAL)
         dc.SetFont(font)
-        texto = "Media = %.1f" % self.datos.prom
+        texto = u"Media = %.1f" % self.datos.prom
         dc.DrawText(texto,ancho-dc.GetTextExtent(texto)[0],(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3),
         
         #lineas de desvío medio.
         dc.SetPen(wx.Pen("Gray",1,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3\
             ,ancho,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
-        font =  wx.Font(8, wx.DECORATIVE,wx.ITALIC, wx.NORMAL)
+        font =  wx.Font(8, wx.ROMAN, wx.NORMAL,wx.NORMAL)
         dc.SetFont(font)
-        texto = "Desvío = +/- %.1f" % self.datos.desmed
+        texto = u"Desvío = +/- %.1f" % self.datos.desmed
         dc.DrawText(texto,ancho-dc.GetTextExtent(texto)[0],(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
         
         
