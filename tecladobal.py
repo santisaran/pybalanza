@@ -19,7 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = False
+BALANZA = True
 
 #posiciones de los botones del teclado
 def posbtns(x,y):
