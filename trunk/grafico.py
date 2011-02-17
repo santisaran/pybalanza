@@ -4,8 +4,9 @@
 import time
 import wx
 import random
-data = ["0",[random.randint(950,1050) for i in range(20)]]
-
+data = []
+for i in range(20):
+    data.append([str(i),random.randint(650,1000)])
 #muestras = ('10', '20', '30')
 class prosdata():
     def __init__(self,datos):
@@ -79,11 +80,13 @@ class LineChart(wx.Window):
         dc.DrawLine(1, 1, self.ancho-30, 1)
         dc.DrawLine(self.ancho-30,1,self.ancho-35,-4)
         dc.DrawLine(self.ancho-30,1,self.ancho-35,+3)
+        dc.DrawText("Muestras",self.ancho-dc.GetTextExtent("Muestras")[0]-30,1)
         
         #Eje y
         dc.DrawLine(1, 1, 1, self.alto-20)
         dc.DrawLine(1, self.alto-20, -4, self.alto-25)
         dc.DrawLine(1, self.alto-20, 5, self.alto-25)
+        dc.DrawText("Peso",-dc.GetTextExtent("Peso")[0]-2, self.alto-20-dc.GetTextExtent("Muestras")[1])
         
         alto = self.alto-50
         minimo = alto*0.1
@@ -131,7 +134,7 @@ class LineChart(wx.Window):
         alto = self.alto-50
         minimo = alto*0.1
         maximo = alto*0.9
-        ancho = self.ancho-30
+        ancho = self.ancho-60
         dif = int(maximo - minimo)
         
         #acondicionamiento de los datos para la escala actual.
@@ -139,23 +142,38 @@ class LineChart(wx.Window):
         dc.SetPen(wx.Pen("RED", 5))
         dc.DrawEllipseList(dataxy)
         
-        #print dc.GetTextExtent("hola mundo")
         # Linea promedio.
         dc.SetPen(wx.Pen("Green",2,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3,ancho,(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3)
-
+        
+        font =  wx.Font(8, wx.DECORATIVE,wx.ITALIC, wx.NORMAL)
+        dc.SetFont(font)
+        texto = "Media = %.1f" % self.datos.prom
+        dc.DrawText(texto,ancho-dc.GetTextExtent(texto)[0],(self.datos.prom-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3),
+        
+        #lineas de desvío medio.
         dc.SetPen(wx.Pen("Gray",1,wx.SHORT_DASH))
         dc.DrawLine(0,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3\
             ,ancho,(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
+        font =  wx.Font(8, wx.DECORATIVE,wx.ITALIC, wx.NORMAL)
+        dc.SetFont(font)
+        texto = "Desvío = +/- %.1f" % self.datos.desmed
+        dc.DrawText(texto,ancho-dc.GetTextExtent(texto)[0],(self.datos.prom-self.datos.mini+self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
+        
+        
+            
         dc.DrawLine(0,(self.datos.prom-self.datos.mini-self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3,\
             ancho,(self.datos.prom-self.datos.mini-self.datos.desmed)/self.datos.dif*dif+int(alto*0.1)-3)
+            
+            
 
 
 class VerGrafico(wx.Frame):
     def __init__(self, parent, id, title,tabla=data):
-        wx.Frame.__init__(self, parent, id, title, size=(500, 300))
+        wx.Frame.__init__(self, parent, id, title, size=(700, 550))
         self.width,self.height = self.GetSize()
-        self.tabla = [int(i[1]) for i in tabla]
+
+        self.tabla = [i[1] for i in tabla]
         panel = wx.Panel(self, -1)
         panel.SetBackgroundColour('WHITE')
         hbox = wx.BoxSizer(wx.HORIZONTAL)
