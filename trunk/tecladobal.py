@@ -19,6 +19,8 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
+BALANZA = True
+
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
@@ -113,7 +115,7 @@ class Panel1(wx.Panel):
                 #~ a.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
         self.pantalla = wx.TextCtrl( self, wx.ID_ANY, u"Peso: 0000 gr", pos=(72,95),size=(272,80), style=0|wx.TE_MULTILINE )
-        self.pantalla.SetFont( wx.Font( 18, 70, 90, 90, False, wx.EmptyString ) )
+        self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
         
         #--------------------------------------------------------------#
         #-------------------    BOTONES     ---------------------------#
@@ -233,6 +235,8 @@ class Panel1(wx.Panel):
         #self.Bind(wx.EVT_TIMER, self.on_timer)
         self.voldb = False
         self.volaceptado = False
+        self.den_acep = False
+        self.den_db = False
 
 #autotara al inicio. cada 100 milisegundos chekea el valor de peso. hasta que
 #sea distinto de None.
@@ -274,10 +278,25 @@ class Panel1(wx.Panel):
                 if self.uni_vol == "dm3":
                     peso = dec(int(peso))/1000
                 self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
-            
             else:
                 self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
                 self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
+        elif self.estado == "densidad":
+            if self.den_db:
+                if self.den_acep:
+                    try:
+                        mostrar = round(dec(self.pesoden)/dec(peso),3)
+                    except:
+                        mostrar = "div por 0"
+                    if mostrar<0:
+                        mostrar = ""
+                    print self.pesoden
+                    print peso
+                    self.pantalla.SetValue(u"Peso: " + str(mostrar) + " " + self.uni + "\nColoque material a medir densidad")
+                else:
+                    self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
+            else:
+                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir densidad\ny presione aceptar")
             
         self.valoractual = str(peso)
               
@@ -305,6 +324,10 @@ class Panel1(wx.Panel):
         #print "balanza"
         self.idact = 1
         if self.estado != "balanza":
+            self.voldb = False
+            self.volaceptado = False
+            self.den_acep = False
+            self.den_db = False
             self.estado = "balanza"
             self.BtnsBal(True,True,False)
             evt.Skip()
@@ -313,6 +336,10 @@ class Panel1(wx.Panel):
         """Acción al presionar boton 2/Contador"""
         #if self.estado != "contador":
         self.estado = "contador"
+        self.voldb = False
+        self.volaceptado = False
+        self.den_acep = False
+        self.den_db = False        
         self.coloque = False
         self.pantalla.SetValue("Peso: "+self.valoractual+self.uni+"\nColoque Muestra") 
         self.BtnsBal(True,True,False)
@@ -325,12 +352,19 @@ class Panel1(wx.Panel):
         """Acción al presionar boton 3/Calidad"""
         if self.estado != "calidad":
             self.estado = "calidad"
+            self.voldb = False
+            self.volaceptado = False
+            self.den_acep = False
+            self.den_db = False
             self.BtnsBal(False,True,True)
         evt.Skip()
         
     def OnVolumen(self,evt):
         """Acción al presionar boton 3/Calidad"""
         self.idact = 1
+        self.volaceptado = False
+        self.den_acep = False
+        self.den_db = False
         self.voldb = True
         if self.estado != "volumen":
             self.estado = "volumen"
@@ -339,9 +373,15 @@ class Panel1(wx.Panel):
         
     def OnDensidad(self,evt):
         """Acción al presionar boton 3/Calidad"""
+        self.idact=1
+        #self.den_db = True
         if self.estado != "densidad":
+            self.voldb = False
+            self.volaceptado = False
+            self.den_acep = False
+            self.den_db = False
             self.estado = "densidad"
-            self.BtnsBal(False,True,True)
+            self.BtnsBal(True,True,False)
         evt.Skip()
         
     def OnUnidad(self,evt):
@@ -374,6 +414,16 @@ class Panel1(wx.Panel):
             if self.voldb == True:
                 self.voldb = False
                 self.volaceptado = True
+        elif self.estado == "densidad":
+            if self.den_db:
+                if self.den_acep == False:
+                    self.den_db = True
+                    self.den_acep = True
+            else:
+                #self.pesoden es el peso al que se le calcula la densidad
+                self.pesoden=int(self.valoractual)
+                self.den_db = True
+                self.den_acep = False
         evt.Skip()
         
     def OnDown(self,evt):
@@ -386,6 +436,10 @@ class Panel1(wx.Panel):
         
     def OnFin(self,evt):
         """Acción al presionar botón up"""
+        self.voldb = False
+        self.volaceptado = False
+        self.den_acep = False
+        self.den_db = False
         self.OnBalanza(evt)
         evt.Skip()
 
@@ -440,10 +494,12 @@ class Panel1(wx.Panel):
         global contador
         if contador == 10:
             contador = 0 
-            #peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
-            wx.PostEvent(self, AcquireEvent(str(data[1])))
-            #wx.PostEvent(self,AcquireEvent(str(peso)))
+            if BALANZA:
+                wx.PostEvent(self,AcquireEvent(str(peso)))
+            else:
+                wx.PostEvent(self, AcquireEvent(str(data[1])))
         contador+=1
+        
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
     #------------------------------------------------------------------#
@@ -482,8 +538,10 @@ class ThreadLector(threading.Thread):
         elif sys.platform == "linux2":
             import usb.core
             import usb.util
-            #dev =  usb.core.find(idVendor=0x1345, idProduct=0x1000)
-            dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
+            if BALANZA:
+                dev = usb.core.find(idVendor=0x1414, idProduct=0x2013)
+            else:
+                dev =  usb.core.find(idVendor=0x1345, idProduct=0x1000)
             interface = dev.get_interface_altsetting()
             if dev.is_kernel_driver_active(interface.bInterfaceNumber) is True:
                 dev.detach_kernel_driver(interface.bInterfaceNumber)
@@ -497,8 +555,10 @@ class ThreadLector(threading.Thread):
                 if len(cadena)>30:
                     
                     peso = [chr(a) for a in cadena]
-                    gramos = (int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3]))
-                    #gramos = cadena[0]
+                    if BALANZA:
+                        gramos = (int(peso[0])*1000+int(peso[1])*100+int(peso[2])*10+int(peso[3]))
+                    else:
+                        gramos = cadena[0]
                     pesadas.pop(0)
                     pesadas.append(gramos)
                     cuenta+=1
@@ -521,7 +581,7 @@ if sys.platform == "win32":
 else:
     fwadic = 0
     fhadic = 0
-frame1 = wx.Frame(None, -1, "Balanza", size=(fw+8, fh+28))
+frame1 = wx.Frame(None, -1, "Balanza", size=(fw+fwadic, fh+fhadic))
 # create a panel class instance
 panel1 = Panel1(frame1, -1, fw, fh, tile_file)
 frame1.Show(True)
