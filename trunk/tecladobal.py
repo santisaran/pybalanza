@@ -19,7 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = False
+BALANZA = True
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
@@ -240,10 +240,10 @@ class Panel1(wx.Panel):
         #self.Bind(wx.EVT_TIMER, self.on_timer)
         
         #timer para autotara cuando peso es -1
-        self.TIMERTARAID = 200
-        self.timerautotara = wx.Timer(self,self.TIMERTARAID)
-        wx.EVT_TIMER(self, self.TIMERTARAID, self.OnAutotara)
-        self.autotara = 0
+        #~ self.TIMERTARAID = 200
+        #~ self.timerautotara = wx.Timer(self,self.TIMERTARAID)
+        #~ wx.EVT_TIMER(self, self.TIMERTARAID, self.OnAutotara)
+        #~ self.autotara = 0
         
         self.voldb = False
         self.volaceptado = False
@@ -256,11 +256,12 @@ class Panel1(wx.Panel):
         if self.peso==None:
             self.timer.Start(100,True)
         else:
-            print "tara"
             self.tara=int(self.peso)
         event.Skip()
 
     def OnAutotara(self,evt):
+        self.autotara=self.autotara+1
+            
         pass
 
     def OnAcquireData(self,evt):
@@ -272,8 +273,13 @@ class Panel1(wx.Panel):
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
-        #if int(self.valoractual)==-1:
-         #   self.timerautotara.Start(100,True)
+        if int(self.valoractual)==-1:
+            self.autotara=self.autotara+1
+            if self.autotara == 25:
+                self.tara = int(evt.data)
+                self.autotara = 0
+        else:
+            self.autotara = 0
             
         if int(self.valoractual) < -1:
             self.pantalla.SetValue("Requiere tara")
