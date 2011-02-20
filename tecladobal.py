@@ -238,6 +238,13 @@ class Panel1(wx.Panel):
         self.timer.Start(100,True)  # x100 milliseconds
         wx.EVT_TIMER(self, TIMER_ID, self.on_timer)
         #self.Bind(wx.EVT_TIMER, self.on_timer)
+        
+        #timer para autotara cuando peso es -1
+        self.TIMERTARAID = 200
+        self.timerautotara = wx.Timer(self,self.TIMERTARAID)
+        wx.EVT_TIMER(self, self.TIMERTARAID, self.OnAutotara)
+        self.autotara = 0
+        
         self.voldb = False
         self.volaceptado = False
         self.den_acep = False
@@ -249,8 +256,12 @@ class Panel1(wx.Panel):
         if self.peso==None:
             self.timer.Start(100,True)
         else:
+            print "tara"
             self.tara=int(self.peso)
         event.Skip()
+
+    def OnAutotara(self,evt):
+        pass
 
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
@@ -261,6 +272,9 @@ class Panel1(wx.Panel):
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
+        #if int(self.valoractual)==-1:
+         #   self.timerautotara.Start(100,True)
+            
         if int(self.valoractual) < -1:
             self.pantalla.SetValue("Requiere tara")
             self.peso=evt.data
