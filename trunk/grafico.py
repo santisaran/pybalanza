@@ -179,7 +179,7 @@ class VerGrafico(wx.Frame):
     def __init__(self, parent, id, title,tabla=data):
         wx.Frame.__init__(self, parent, id, title, size=(700, 550))
         if tabla!=[]:
-            self.width,self.height = self.GetSize()
+            #self.width,self.height = self.GetSize()
             self.tabla = [int(i[1]) for i in tabla]
             panel = wx.Panel(self, -1)
             panel.SetBackgroundColour('WHITE')
