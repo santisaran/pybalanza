@@ -290,7 +290,7 @@ class Panel1(wx.Panel):
                 if self.den_acep:
                     densidad = 0
                     try:
-                        mostrar = round(dec(self.pesoden)/dec(peso),1)
+                        mostrar = round(dec(self.pesoden)/dec(peso),3)
                     except:
                         mostrar = ""
                     if mostrar<0:
@@ -455,6 +455,17 @@ class Panel1(wx.Panel):
         self.volaceptado = False
         self.den_acep = False
         self.den_db = False
+        #tabla de valores de balanza
+        self.l_bal = []
+        #tabla de valores de muestras en función balanza
+        self.l_muestras = []
+        #lista de volúmenes para tabla
+        self.l_vol = []
+        #lista de densidades para tabla
+        #self.l_den = []
+        #lista de calidad
+        self.l_calidad= []
+        self.idact = "0"
         self.OnBalanza(evt)
         self.idact=0
         evt.Skip()
