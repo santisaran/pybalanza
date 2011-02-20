@@ -19,7 +19,7 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = True
+BALANZA = False
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
@@ -261,53 +261,57 @@ class Panel1(wx.Panel):
         else:
             peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
-        self.peso = evt.data
-        if self.estado == "balanza":
-            #para almacenar en tabla guardo directo el valor de la balanza.
-            self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
-        
-        elif self.estado == "contador":
-            if not self.coloque:
+        if int(self.valoractual) < -1:
+            self.pantalla.SetValue("Requiere tara")
+            self.peso=evt.data
+        else:
+            self.peso = evt.data
+            if self.estado == "balanza":
                 #para almacenar en tabla guardo directo el valor de la balanza.
-                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
-                #variable con el valor actual en pantalla.
-                
-            else:
-                self.cantidad = int(self.valoractual)/int(self.muestra)
-                self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
-        elif self.estado == "volumen":
-            if self.volaceptado:
-                if self.uni_vol == "in3":
-                    peso = round(dec(peso)/dec("16.387064"),2)
-                if self.uni_vol == "dm3":
-                    peso = dec(int(peso))/1000
-                self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
-            else:
-                self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
-                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
-        elif self.estado == "densidad":
-            if self.den_db:
-                if self.den_acep:
-                    densidad = 0
-                    try:
-                        mostrar = round(dec(self.pesoden)/dec(peso),3)
-                    except:
-                        mostrar = ""
-                    if mostrar<0:
-                        mostrar = ""
-                    elif mostrar!="":
-                        self.densidadactual=mostrar
-                        if self.uni_den == "lb/in3":
-                            densidad = round(dec(str(mostrar)) / dec("27.679905"),3)
-                        else:
-                            densidad = mostrar
-                    self.pantalla.SetValue(u"Peso: " + str(densidad) + " " + self.uni_den + "\nColoque material a medir densidad")
+                self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni)
+            
+            elif self.estado == "contador":
+                if not self.coloque:
+                    #para almacenar en tabla guardo directo el valor de la balanza.
+                    self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque Muestra")
+                    #variable con el valor actual en pantalla.
+                    
                 else:
-                    self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
-            else:
-                self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir\n densidad y acepte")
-        elif self.estado == "calidad":
-            self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nMuestra = " + str(self.idact)+"\nColoque muestras")
+                    self.cantidad = int(self.valoractual)/int(self.muestra)
+                    self.pantalla.SetValue(u"Cant: " + str(self.cantidad) + "\nUnidades")
+            elif self.estado == "volumen":
+                if self.volaceptado:
+                    if self.uni_vol == "in3":
+                        peso = round(dec(peso)/dec("16.387064"),2)
+                    if self.uni_vol == "dm3":
+                        peso = dec(int(peso))/1000
+                    self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni_vol + "\nColoque Material")
+                else:
+                    self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
+                    self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nInserte recipiente, Tare\ny acepte")
+            elif self.estado == "densidad":
+                if self.den_db:
+                    if self.den_acep:
+                        densidad = 0
+                        try:
+                            mostrar = round(dec(self.pesoden)/dec(peso),3)
+                        except:
+                            mostrar = ""
+                        if mostrar<0:
+                            mostrar = ""
+                        elif mostrar!="":
+                            self.densidadactual=mostrar
+                            if self.uni_den == "lb/in3":
+                                densidad = round(dec(str(mostrar)) / dec("27.679905"),3)
+                            else:
+                                densidad = mostrar
+                        self.pantalla.SetValue(u"Peso: " + str(densidad) + " " + self.uni_den + "\nColoque material a medir densidad")
+                    else:
+                        self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nColoque Recipiente con Agua tare y acepte")
+                else:
+                    self.pantalla.SetValue(u"Peso: " + str(peso) + self.uni + "\nColoque material a medir\n densidad y acepte")
+            elif self.estado == "calidad":
+                self.pantalla.SetValue(u"Peso: " + str(peso) + " " + self.uni + "\nMuestra = " + str(self.idact)+"\nColoque muestras")
               
     def BtnsBal (self,guardar=True,ver=True,mostrar=True):
         """ Muestra/oculta los botones de la funcion pesar """
@@ -479,8 +483,7 @@ class Panel1(wx.Panel):
         """Acción al presionar boton Guardar Tabla"""
         if self.estado=="balanza":
             self.idact =str(int(self.idact)+1)  
-            valor=self.peso
-            self.l_bal.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_bal.append([str(self.idact),self.valoractual,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
             if self.coloque:
                 self.idact =str(int(self.idact)+1)
@@ -496,7 +499,6 @@ class Panel1(wx.Panel):
                 self.l_den.append([str(self.idact),str(self.valoractual),\
                     str(self.pesoden),str(self.densidadactual),\
                     time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
-                print self.l_den
         evt.Skip()
         
     def OnVerTabla(self,evt):
