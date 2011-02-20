@@ -298,7 +298,7 @@ class Panel1(wx.Panel):
                     elif mostrar!="":
                         self.densidadactual=mostrar
                         if self.uni_den == "lb/in3":
-                            densidad = round(dec(str(mostrar)) / dec("27.679905"),2)
+                            densidad = round(dec(str(mostrar)) / dec("27.679905"),3)
                         else:
                             densidad = mostrar
                     self.pantalla.SetValue(u"Peso: " + str(densidad) + " " + self.uni_den + "\nColoque material a medir densidad")
@@ -427,12 +427,17 @@ class Panel1(wx.Panel):
                 self.voldb = False
                 self.volaceptado = True
         elif self.estado == "densidad":
+            """está en función densidad"""
             if self.den_db:
                 if self.den_acep == False:
                     self.den_db = True
                     self.den_acep = True
+                else:
+                    self.den_acep = False
+                    self.den_db = False
             else:
                 #self.pesoden es el peso al que se le calcula la densidad
+                #esto se lo que hace con el primer aceptar
                 self.pesoden=int(self.valoractual)
                 self.den_db = True
                 self.den_acep = False
@@ -487,7 +492,11 @@ class Panel1(wx.Panel):
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
                 self.idact =str(int(self.idact)+1)
-                self.l_den.append([str(self.idact),str(self.densidadactual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                #guarda en tabla ID, Volumen, Peso, Densidad, Timestamp
+                self.l_den.append([str(self.idact),str(self.valoractual),\
+                    str(self.pesoden),str(self.densidadactual),\
+                    time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                print self.l_den
         evt.Skip()
         
     def OnVerTabla(self,evt):
@@ -504,7 +513,7 @@ class Panel1(wx.Panel):
                 frame.Show()
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
-                frame = list_report.ListaFrame(self,self.l_den,"densidad",["ID","Densidad","Timestamp"],"Lista de densidades")
+                frame = list_report.ListaFrame(self,self.l_den,"densidad",["ID","Volumen","peso","densidad","TimeStamp"],"Lista de densidades")
                 frame.Show()
         elif self.estado == "calidad":
             frame = list_report.ListaFrame(self,self.l_calidad,"calidad",["ID","Peso","Timestamp"],"Lista Calidad")

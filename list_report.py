@@ -116,12 +116,32 @@ class ListaFrame(wx.Frame):
                 self.data[n][1] = peso
             elif self.funcion == "densidad":
                 if unidad=="lb/in3":
-                    peso=round(dec(i[1])/dec("27.679905"),2)
+                    """paso el peso a libras"""
+                    peso=str(round(dec(i[2])/dec("453592.37")*1000,3))
                 elif unidad=="g/cm3":
+                    peso=int(dec(i[2]))
+                self.data[n][2] = str(peso)
+                
+                if unidad=="lb/in3":
+                    """paso el volumen a in3"""
+                    peso=str(round(dec(i[1])/dec("16.387064"),2))
+                elif unidad=="g/cm3":
+                    """volumen a cm3"""
                     peso=int(dec(i[1]))
                 self.data[n][1] = str(peso)
+                
+                if unidad=="lb/in3":
+                    """paso la densidad a lb/in3"""
+                    peso=str(round(dec(i[3]) / dec("27.679905"),3))
+                elif unidad=="g/cm3":
+                    """densidad a g/cm3"""
+                    peso=dec(i[3])
+                self.data[n][3] = str(peso)
+                
+                
+                
+                
             elif self.funcion == "contador":
-
                 if unidad=="lb":
                     peso=str(round(dec(i[1])/dec("453592.37")*1000,3))
                 elif unidad=="kg":
