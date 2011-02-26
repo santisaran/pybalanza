@@ -28,9 +28,14 @@ def posbtns(x,y):
     posv = (60+a,128+a,196+a,266+a)
     return (posh[x],posv[y])
 
-def redondear(valor,D):
-    """funcion que redondea el valor entero enviado en multiplos de d"""
-    return int(valor)/D*D        
+def redondear(valor,anterior,D):
+    """funcion que redondea el valor entero enviado en multiplos de d
+    si anterior 146, valor 145 -> 146 si anterior 146 valor 147 -> 146"""
+    resta = int(anterior) - int(valor)
+    if abs(resta)<d/2:
+        return anterior
+    else:
+        return int(valor)/D*D        
 
 #----------------------------------------------------------------------#
 #----------------------------------------------------------------------#
@@ -94,7 +99,8 @@ class Panel1(wx.Panel):
         self.unidades_peso = puntero([u"gr","kg","lb"])
         self.unidades_vol = puntero([u"cm3",u"dm3",u"in3"])
         self.unidades_den = puntero(["g/cm3","lb/in3"])
-        
+        self.valoractual = 0
+        self.valround = 0
         self.ptrpeso=0
         self.ptrvol=0
         self.ptrden=0
@@ -271,8 +277,9 @@ class Panel1(wx.Panel):
 
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
+        self.anterior = int(self.valround)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
-        self.valround = redondear(self.valoractual,d)
+        self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
             peso=round(dec((dec(self.valround)/dec("453592.37"))*1000),3)
         elif self.uni=="kg":
@@ -482,7 +489,7 @@ class Panel1(wx.Panel):
                 self.den_acep = False
         elif self.estado == "calidad":
             self.idact = str(int(self.idact)+1)
-            self.l_calidad.append([str(self.idact),str(redondear(self.valoractual,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_calidad.append([str(self.idact),str(redondear(self.valoractual,self.anterior,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnDown(self,evt):
@@ -518,15 +525,15 @@ class Panel1(wx.Panel):
         """Acción al presionar boton Guardar Tabla"""
         if self.estado=="balanza":
             self.idact =str(int(self.idact)+1)  
-            self.l_bal.append([str(self.idact),str(redondear(self.valoractual,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_bal.append([str(self.idact),str(redondear(self.valoractual,self.anterior,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
             if self.coloque:
                 self.idact =str(int(self.idact)+1)
-                self.l_muestras.append([str(self.idact),str(self.muestra),str(redondear(self.valoractual,d)),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_muestras.append([str(self.idact),str(self.muestra),str(redondear(self.valoractual,self.anterior,d)),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "volumen":
             if self.volaceptado:
                 self.idact =str(int(self.idact)+1)
-                self.l_vol.append([str(self.idact),str(redondear(self.peso,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_vol.append([str(self.idact),str(redondear(self.peso,self.anterior,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
                 self.idact =str(int(self.idact)+1)
