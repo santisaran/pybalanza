@@ -19,8 +19,8 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = False
-d = 6   #define el d de la balanza, este mismo soft se puede usar para distintas configuraciones
+BALANZA = True
+d = 2   #define el d de la balanza, este mismo soft se puede usar para distintas configuraciones
 MUESTRAS = 10 #imprime la pantalla cada 10 muestras
 #posiciones de los botones del teclado
 def posbtns(x,y):
