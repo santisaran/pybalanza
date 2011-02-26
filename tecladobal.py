@@ -19,13 +19,19 @@ elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
 
-BALANZA = True
+BALANZA = False
+d = 6   #define el d de la balanza, este mismo soft se puede usar para distintas configuraciones
+MUESTRAS = 10 #imprime la pantalla cada 10 muestras
 #posiciones de los botones del teclado
 def posbtns(x,y):
     posh = (430+a,499+a,568+a,637+a)
     posv = (60+a,128+a,196+a,266+a)
     return (posh[x],posv[y])
-    
+
+def redondear(valor,D):
+    """funcion que redondea el valor entero enviado en multiplos de d"""
+    return int(valor)/D*D        
+
 #----------------------------------------------------------------------#
 #----------------------------------------------------------------------#
 #------------------ Evento al llegar datos por USB --------------------#
@@ -261,20 +267,29 @@ class Panel1(wx.Panel):
 
     def OnAutotara(self,evt):
         self.autotara=self.autotara+1
-            
         pass
 
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
-        if self.uni=="lb":
-            peso=round(dec((dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("453592.37"))*1000),3)
-        elif self.uni=="kg":
-            peso=round(dec(dec(int(evt.data)-self.tara)/4096*4000)/dec("1000"),3)
-        else:
-            peso= int(dec(int(evt.data)-self.tara)/4096*4000)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000))
+        self.valround = redondear(self.valoractual,d)
+        if self.uni=="lb":
+            peso=round(dec((dec(self.valround)/dec("453592.37"))*1000),3)
+        elif self.uni=="kg":
+            peso=round(dec(self.valround)/dec("1000"),3)
+        else:
+            peso= int(self.valround)
+            
+        #Tara automáticamente cuando es -1 o 1 durante 1 segundo        
         if int(self.valoractual)==-1:
             self.autotara=self.autotara+1
+            if self.autotara == 25:
+                self.tara = int(evt.data)
+                self.autotara = 0
+        
+        elif int(self.valoractual)==1:
+            self.autotara=self.autotara+1
+            print self.autotara
             if self.autotara == 25:
                 self.tara = int(evt.data)
                 self.autotara = 0
@@ -467,7 +482,7 @@ class Panel1(wx.Panel):
                 self.den_acep = False
         elif self.estado == "calidad":
             self.idact = str(int(self.idact)+1)
-            self.l_calidad.append([str(self.idact),str(self.valoractual),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_calidad.append([str(self.idact),str(redondear(self.valoractual,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         evt.Skip()
         
     def OnDown(self,evt):
@@ -503,15 +518,15 @@ class Panel1(wx.Panel):
         """Acción al presionar boton Guardar Tabla"""
         if self.estado=="balanza":
             self.idact =str(int(self.idact)+1)  
-            self.l_bal.append([str(self.idact),self.valoractual,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+            self.l_bal.append([str(self.idact),str(redondear(self.valoractual,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "contador":
             if self.coloque:
                 self.idact =str(int(self.idact)+1)
-                self.l_muestras.append([str(self.idact),str(self.muestra),str(self.valoractual),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_muestras.append([str(self.idact),str(self.muestra),str(redondear(self.valoractual,d)),str(self.cantidad),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "volumen":
             if self.volaceptado:
                 self.idact =str(int(self.idact)+1)
-                self.l_vol.append([str(self.idact),self.peso,time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
+                self.l_vol.append([str(self.idact),str(redondear(self.peso,d)),time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())])
         elif self.estado == "densidad":
             if self.den_db and self.den_acep:
                 self.idact =str(int(self.idact)+1)
@@ -562,7 +577,7 @@ class Panel1(wx.Panel):
     
     def sample_handler(self,data):
         global contador
-        if contador == 10:
+        if contador == MUESTRAS:
             contador = 0
             if BALANZA: 
                 peso = int(chr(data[1]))*1000 + int(chr(data[2]))*100 + int(chr(data[3]))*10 +int(chr(data[4]))
@@ -646,7 +661,7 @@ class ThreadLector(threading.Thread):
                     pesadas.pop(0)
                     pesadas.append(gramos)
                     cuenta+=1
-                    if cuenta == 10:
+                    if cuenta == MUESTRAS:
                         cuenta = 0
                         valor=0
                         for a in pesadas:
