@@ -152,8 +152,19 @@ class LineChart(wx.Window):
             dataxy = [[(ancho)/self.datos.size*x,((float(y-self.datos.mini))/self.datos.dif)*dif+int(alto*0.1)-3,3,3] for x,y in enumerate(self.datos.data)]
         else:
             dataxy = [[(ancho)/self.datos.size*x,int(alto/2)+int(alto*0.1)-3,3,3] for x,y in enumerate(self.datos.data)]
-        dc.SetPen(wx.Pen("RED", 5))
+        
+        dc.SetPen(wx.Pen("GREEN", 5))
         dc.DrawEllipseList(dataxy)
+        if self.datos.dif!=0 and self.datos.size!=0:
+            if self.padre.desvio: 
+                """si se definió un desvío máximo, pone en rojo los valores fuera de rango"""
+                dataxy = [[(ancho)/self.datos.size*x,((float(y-self.datos.mini))/self.datos.dif)*dif+int(alto*0.1)-3,3,3] for x,y in enumerate(self.datos.data) if (y<(self.padre.media-self.padre.desvio))or(y>(self.padre.media+self.padre.desvio))]
+                dc.SetPen(wx.Pen("RED", 5))
+                dc.DrawEllipseList(dataxy)
+
+        
+            
+        
         if self.datos.dif != 0:
             # Linea promedio.
             if self.padre.vermediamedida:
@@ -187,6 +198,7 @@ class LineChart(wx.Window):
                     dc.SetFont(font)
                     texto = u"Media = %.1f" % self.padre.media
                     dc.DrawText(texto,0,(self.padre.media-self.datos.mini)/self.datos.dif*dif+int(alto*0.1)-3),
+            
             if self.padre.verdesviocalidad:
                 if self.padre.desvio and self.padre.media:
                     dc.SetPen(wx.Pen("Blue",1,wx.SHORT_DASH))
@@ -195,7 +207,7 @@ class LineChart(wx.Window):
                     font =  wx.Font(8, wx.ROMAN, wx.NORMAL,wx.NORMAL)
                     dc.SetFont(font)
                     texto = u"Desvío = +/- %.1f" % self.padre.desvio
-                    dc.DrawText(texto,10+dc.GetTextExtent(texto)[0],(self.padre.media-self.datos.mini+self.padre.desvio)/self.datos.dif*dif+int(alto*0.1)-3)
+                    dc.DrawText(texto,0,(self.padre.media-self.datos.mini+self.padre.desvio)/self.datos.dif*dif+int(alto*0.1)-3)
         
                     dc.DrawLine(0,(self.padre.media-self.datos.mini-self.padre.desvio)/self.datos.dif*dif+int(alto*0.1)-3,\
                         ancho,(self.padre.media-self.datos.mini-self.padre.desvio)/self.datos.dif*dif+int(alto*0.1)-3)
