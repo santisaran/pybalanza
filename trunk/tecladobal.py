@@ -32,7 +32,7 @@ def redondear(valor,anterior,D):
     """funcion que redondea el valor entero enviado en multiplos de d
     si anterior 146, valor 145 -> 146 si anterior 146 valor 147 -> 146"""
     resta = int(anterior) - int(valor)
-    if abs(resta)<=d/2:
+    if abs(resta)<d:
         return anterior
     else:
         return int(valor)/D*D        
