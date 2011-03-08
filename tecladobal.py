@@ -38,7 +38,14 @@ def redondear(valor,anterior,D):
     elif resta<0:
         valor=int(valor)-1
     if TECLA:
-        valor=valor/4*4
+        if valor<=103 and valor>=97:
+            return 100
+        elif valor<=203 and valor>=197:
+            return 200
+        elif valor<=303 and valor>=297:
+            return 300
+        elif valor<=403 and valor>=397:
+            return 400
     return int(valor)/D*D        
 
 #----------------------------------------------------------------------#
@@ -229,6 +236,7 @@ class Panel1(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnUp, self.btn_up) #
         self.Bind(wx.EVT_BUTTON, self.OnFin, self.btn_fin) #
         self.pantalla.Bind( wx.EVT_CHAR, self.OnCaracter )
+        self.Bind(wx.EVT_CHAR, self.OnCaracter)
         #botones alternativos
         
         self.Bind(wx.EVT_BUTTON, self.OnGTabla, self.btn_save_tabla)   #
