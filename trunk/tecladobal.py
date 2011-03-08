@@ -32,10 +32,11 @@ def redondear(valor,anterior,D):
     """funcion que redondea el valor entero enviado en multiplos de d
     si anterior 146, valor 145 -> 146 si anterior 146 valor 147 -> 146"""
     resta = int(anterior) - int(valor)
-    if abs(resta)<d:
-        return anterior
-    else:
-        return int(valor)/D*D        
+    if resta>0:
+        valor=valor+1
+    elif resta<0:
+        valor=valor-1
+    return int(valor)/D*D        
 
 #----------------------------------------------------------------------#
 #----------------------------------------------------------------------#
@@ -279,7 +280,7 @@ class Panel1(wx.Panel):
         """Evento de recepción de datos"""
         self.anterior = int(self.valround)
         self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000+dec("0.5")))
-        print self.valoractual
+
         self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
             peso=round(dec((dec(self.valround)/dec("453592.37"))*1000),3)
