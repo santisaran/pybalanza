@@ -146,7 +146,6 @@ class Panel1(wx.Panel):
         
         self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[0], wx.BITMAP_TYPE_PNG), pos=posbtns(0,0), style=0|wx.NO_BORDER )
         self.btn1.SetBitmapSelected( wx.Bitmap( self.botones_press[0], wx.BITMAP_TYPE_ANY ))
-        self.btn1.SetTransparent(200)
         
         self.btn2 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( self.botones[1], wx.BITMAP_TYPE_ANY), pos=posbtns(1,0), style=0|wx.NO_BORDER )
         self.btn2.SetBitmapSelected( wx.Bitmap( self.botones_press[1], wx.BITMAP_TYPE_ANY ))
@@ -580,16 +579,13 @@ class Panel1(wx.Panel):
     
     def on_paint(self, event=None):
         # create paint surface
+        global TECLA
         dc = wx.PaintDC(self)
         dc.Clear()
-        #~ if self.tecla:
-            #~ self.bmp1 = wx.Bitmap("images"+sep+"base2.png")
-        #~ else:
-            #~ self.bmp1 = wx.Bitmap("images"+sep+"base.png")
-        #~ self.btn1.Show(False)
-        #~ self.btn1.Show(True)
-        #dc.SetBackgroundMode(wx.TRANSPARENT)
-        # get image width and height
+
+
+
+
         iw = self.bmp1.GetWidth()
         ih = self.bmp1.GetHeight()
         # tile/wallpaper the image across the canvas
@@ -600,38 +596,10 @@ class Panel1(wx.Panel):
     def OnCaracter(self,evt):
         global TECLA
         if evt.GetKeyCode()==107:
-
             TECLA = not TECLA
-    
-            dc = wx.PaintDC(self)
             if TECLA:
-                self.bmp1 = wx.Bitmap("images"+sep+"base2.png")
-            else:
-                self.bmp1 = wx.Bitmap("images"+sep+"base.png")
-            botones = (self.btn1,self.btn2,self.btn3,self.btn4,self.btn5,\
-                self.btn6,self.btn7,self.btn8,self.btn9,self.btn_tara,\
-                self.btn_uni,self.btn_acep,self.btn_fin,self.btn_down,self.btn_up,\
-                self.btn0)
-            for i in botones:
-                i.Show(False)
-                i.Show(True)
-                
-            self.BtnsBal(False,False,False)
-            if self.estado == "calidad":
-                self.BtnsBal(False,True,True)
-            else:
-                self.BtnsBal(True,True,False)
-            
-                
-            dc.SetBackgroundMode(wx.TRANSPARENT)
-            #get image width and height
-            iw = self.bmp1.GetWidth()
-            ih = self.bmp1.GetHeight()
-            # tile/wallpaper the image across the canvas
-            for x in range(0, self.fw, iw):
-                for y in range(0, self.fh, ih):
-                    dc.DrawBitmap(self.bmp1, x, y, True)
-            evt.Skip()
+                self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( "images/btn1_peso_.png", wx.BITMAP_TYPE_PNG), pos=posbtns(0,0), style=0|wx.NO_BORDER )
+        evt.Skip()
     
     def sample_handler(self,data):
         global contador
