@@ -31,12 +31,13 @@ def posbtns(x,y):
 def redondear(valor,anterior,D):
     """funcion que redondea el valor entero enviado en multiplos de d
     si anterior 146, valor 145 -> 146 si anterior 146 valor 147 -> 146"""
+    global TECLA
     resta = int(anterior) - int(valor)
     if resta>0:
         valor=int(valor)+1
     elif resta<0:
         valor=int(valor)-1
-    if tecla:
+    if TECLA:
         valor=valor/4*4
     return int(valor)/D*D        
 
