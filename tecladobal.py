@@ -33,9 +33,9 @@ def redondear(valor,anterior,D):
     si anterior 146, valor 145 -> 146 si anterior 146 valor 147 -> 146"""
     resta = int(anterior) - int(valor)
     if resta>0:
-        valor=valor+1
+        valor=int(valor)+1
     elif resta<0:
-        valor=valor-1
+        valor=int(valor)-1
     return int(valor)/D*D        
 
 #----------------------------------------------------------------------#
