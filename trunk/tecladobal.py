@@ -7,7 +7,7 @@ import sys
 import os
 import time
 
-#ventana para graficar calidad:
+#ventana para graficar  calidad:
 import grafico
 from decimal import Decimal as dec
 import list_report
