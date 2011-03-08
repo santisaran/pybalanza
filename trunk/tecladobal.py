@@ -308,6 +308,8 @@ class Panel1(wx.Panel):
         if int(self.valoractual) < -1:
             self.pantalla.SetValue("Requiere tara")
             self.peso=evt.data
+        elif int(evt.data)>=4095:
+            self.pantalla.SetValue("Peligro! Superó el peso\n máximo")
         else:
             self.peso = evt.data
             if self.estado == "balanza":
