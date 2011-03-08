@@ -18,7 +18,7 @@ if sys.platform=="linux2":
 elif sys.platform=="win32":
     a=5
 tile_file = "images"+sep+"base.png"
-
+TECLA = False
 BALANZA = True
 d = 2   #define el d de la balanza, este mismo soft se puede usar para distintas configuraciones
 MUESTRAS = 10 #imprime la pantalla cada 10 muestras
@@ -36,6 +36,8 @@ def redondear(valor,anterior,D):
         valor=int(valor)+1
     elif resta<0:
         valor=int(valor)-1
+    if tecla:
+        valor=valor/4*4
     return int(valor)/D*D        
 
 #----------------------------------------------------------------------#
@@ -81,7 +83,9 @@ class Panel1(wx.Panel):
     def __init__(self, parent, id, fw, fh, tile_file):
         # crea el panel
         wx.Panel.__init__(self, parent, id)
+
         # frame/panel ancho y alto
+        
         self.fw = fw
         self.fh = fh
         # cargo imagen de fondo de pantalla
@@ -132,7 +136,7 @@ class Panel1(wx.Panel):
                 #~ a = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( u"btn1.png", wx.BITMAP_TYPE_ANY), pos=(i,j), style=0|wx.NO_BORDER )
                 #~ a.SetBitmapSelected( wx.Bitmap( u"btn1_p.png", wx.BITMAP_TYPE_ANY ))
         
-        self.pantalla = wx.TextCtrl( self, wx.ID_ANY, u"Peso: 0000 gr", pos=(72,95),size=(272,80), style=0|wx.TE_MULTILINE )
+        self.pantalla = wx.TextCtrl( self, wx.ID_ANY, u"Peso: 0000 gr", pos=(72,95),size=(272,80), style=0|wx.TE_MULTILINE|wx.TE_READONLY )
         self.pantalla.SetFont( wx.Font( 15, 70, 90, 90, False, wx.EmptyString ) )
         
         #--------------------------------------------------------------#
@@ -224,7 +228,7 @@ class Panel1(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnDown, self.btn_down) #
         self.Bind(wx.EVT_BUTTON, self.OnUp, self.btn_up) #
         self.Bind(wx.EVT_BUTTON, self.OnFin, self.btn_fin) #
-        
+        self.pantalla.Bind( wx.EVT_CHAR, self.OnCaracter )
         #botones alternativos
         
         self.Bind(wx.EVT_BUTTON, self.OnGTabla, self.btn_save_tabla)   #
@@ -577,6 +581,12 @@ class Panel1(wx.Panel):
         # create paint surface
         dc = wx.PaintDC(self)
         dc.Clear()
+        #~ if self.tecla:
+            #~ self.bmp1 = wx.Bitmap("images"+sep+"base2.png")
+        #~ else:
+            #~ self.bmp1 = wx.Bitmap("images"+sep+"base.png")
+        #~ self.btn1.Show(False)
+        #~ self.btn1.Show(True)
         #dc.SetBackgroundMode(wx.TRANSPARENT)
         # get image width and height
         iw = self.bmp1.GetWidth()
@@ -585,6 +595,42 @@ class Panel1(wx.Panel):
         for x in range(0, self.fw, iw):
             for y in range(0, self.fh, ih):
                 dc.DrawBitmap(self.bmp1, x, y, True)
+        
+    def OnCaracter(self,evt):
+        global TECLA
+        if evt.GetKeyCode()==107:
+
+            TECLA = not TECLA
+    
+            dc = wx.PaintDC(self)
+            if TECLA:
+                self.bmp1 = wx.Bitmap("images"+sep+"base2.png")
+            else:
+                self.bmp1 = wx.Bitmap("images"+sep+"base.png")
+            botones = (self.btn1,self.btn2,self.btn3,self.btn4,self.btn5,\
+                self.btn6,self.btn7,self.btn8,self.btn9,self.btn_tara,\
+                self.btn_uni,self.btn_acep,self.btn_fin,self.btn_down,self.btn_up,\
+                self.btn0)
+            for i in botones:
+                i.Show(False)
+                i.Show(True)
+                
+            self.BtnsBal(False,False,False)
+            if self.estado == "calidad":
+                self.BtnsBal(False,True,True)
+            else:
+                self.BtnsBal(True,True,False)
+            
+                
+            dc.SetBackgroundMode(wx.TRANSPARENT)
+            #get image width and height
+            iw = self.bmp1.GetWidth()
+            ih = self.bmp1.GetHeight()
+            # tile/wallpaper the image across the canvas
+            for x in range(0, self.fw, iw):
+                for y in range(0, self.fh, ih):
+                    dc.DrawBitmap(self.bmp1, x, y, True)
+            evt.Skip()
     
     def sample_handler(self,data):
         global contador
@@ -609,6 +655,7 @@ class Panel1(wx.Panel):
         self.l_den = []
         self.l_calidad = []
         self.idact = 0
+    
 
 class ThreadLector(threading.Thread):
     """
