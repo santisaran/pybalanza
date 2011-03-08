@@ -278,7 +278,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         self.anterior = int(self.valround)
-        self.valoractual = str(int(dec(int(evt.data)-self.tara)/dec(4096*4000+0.5)))
+        self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000+dec(0.5)))
         self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
             peso=round(dec((dec(self.valround)/dec("453592.37"))*1000),3)
