@@ -93,7 +93,7 @@ class Panel1(wx.Panel):
         wx.Panel.__init__(self, parent, id)
 
         # frame/panel ancho y alto
-        
+        self.parent = parent
         self.fw = fw
         self.fh = fh
         # cargo imagen de fondo de pantalla
@@ -606,7 +606,10 @@ class Panel1(wx.Panel):
         if evt.GetKeyCode()==107:
             TECLA = not TECLA
             if TECLA:
-                self.btn1 = wx.BitmapButton( self, wx.ID_ANY, wx.Bitmap( "images/btn1_peso_.png", wx.BITMAP_TYPE_PNG), pos=posbtns(0,0), style=0|wx.NO_BORDER )
+                self.parent.SetTitle("ASTREA.")
+            else:
+                self.parent.SetTitle("ASTREA")
+        
         evt.Skip()
     
     def sample_handler(self,data):
@@ -715,7 +718,7 @@ if sys.platform == "win32":
 else:
     fwadic = 0
     fhadic = 0
-frame1 = wx.Frame(None, -1, "Balanza", size=(fw+fwadic, fh+fhadic))
+frame1 = wx.Frame(None, -1, "ASTREA", size=(fw+fwadic, fh+fhadic))
 # create a panel class instance
 panel1 = Panel1(frame1, -1, fw, fh, tile_file)
 frame1.Show(True)
