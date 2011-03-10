@@ -291,7 +291,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         self.anterior = int(self.valround)
-        self.valoractual = str(int(dec(int(evt.data)-self.tara)/4096*4000+dec("0.5")))
+        self.valoractual = str(int(dec(int(evt.data)-self.tara)+dec("0.5")))
 
         self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
@@ -662,7 +662,13 @@ class ThreadLector(threading.Thread):
             else:
                 filtro = hid.HidDeviceFilter(vendor_id=0x1345,product_id=0x1000)
             balanza = filtro.get_devices()
-            balanza = balanza[0]
+            try:
+                balanza = balanza[0]
+            except:
+                dial = wx.MessageDialog(None, 'Por favor\nConecte la balanza\nal puerto USB', 'Sin Balanza', 
+                    wx.YES_NO | wx.NO_DEFAULT | wx.ICON_QUESTION)
+                dial.ShowModal()
+
             contador=0
             try:
                 balanza.open()
