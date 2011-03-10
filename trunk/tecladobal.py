@@ -291,7 +291,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         self.anterior = int(self.valround)
-        self.valoractual = str(int(dec(int(evt.data)-self.tara)+dec("1")))
+        self.valoractual = str(int(evt.data)-self.tara+dec("1"))
 
         self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
@@ -305,14 +305,13 @@ class Panel1(wx.Panel):
         if int(self.valoractual)==-1:
             self.autotara=self.autotara+1
             if self.autotara == 25:
-                self.tara = int(evt.data)
+                self.tara = int(evt.data)+1
                 self.autotara = 0
         
         elif int(self.valoractual)==1:
             self.autotara=self.autotara+1
-            print self.autotara
             if self.autotara == 25:
-                self.tara = int(evt.data)
+                self.tara = int(evt.data)+1
                 self.autotara = 0
         else:
             self.autotara = 0
