@@ -260,7 +260,7 @@ class Panel1(wx.Panel):
         self.thread.start()
         TIMER_ID = 100
         self.timer = wx.Timer(self,TIMER_ID)  # message will be sent to the panel
-        self.timer.Start(100,True)  # x100 milliseconds
+        self.timer.Start(1000,True)  # x100 milliseconds
         wx.EVT_TIMER(self, TIMER_ID, self.on_timer)
         #self.Bind(wx.EVT_TIMER, self.on_timer)
         
@@ -291,7 +291,7 @@ class Panel1(wx.Panel):
     def OnAcquireData(self,evt):
         """Evento de recepción de datos"""
         self.anterior = int(self.valround)
-        self.valoractual = str(int(dec(int(evt.data)-self.tara)+dec("0.5")))
+        self.valoractual = str(int(dec(int(evt.data)-self.tara)+dec("1")))
 
         self.valround = redondear(self.valoractual,self.anterior,d)
         if self.uni=="lb":
