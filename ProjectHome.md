@@ -1,0 +1,1 @@
+Pequeña y simple interfaz con una balanza usb, programada en wxpython.
